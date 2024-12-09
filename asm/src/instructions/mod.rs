@@ -3,6 +3,7 @@ use derive_more::derive::Display;
 
 pub mod bitwise;
 pub mod jump;
+pub mod load;
 pub mod math;
 pub mod misc;
 pub mod subroutine;
@@ -26,6 +27,7 @@ with_info_trait!(
         Increment(math::inc::Increment),
         Jump(jump::Jump),
         JumpRelative(jump::JumpRelative),
+        Load(load::Load),
     }
 );
 
