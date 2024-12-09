@@ -1,4 +1,4 @@
-use crate::{with_info_trait, Cycles, Info};
+use crate::{with_info_trait, Cycles};
 use derive_more::derive::Display;
 
 pub mod bitwise;
@@ -28,6 +28,8 @@ with_info_trait!(
         Jump(jump::Jump),
         JumpRelative(jump::JumpRelative),
         Load(load::Load),
+        Nop(misc::Nop),
+        Or(bitwise::or::Or),
     }
 );
 

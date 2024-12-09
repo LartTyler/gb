@@ -90,6 +90,13 @@ impl From<(u8, u8)> for Cycles {
     }
 }
 
+#[macro_export]
+macro_rules! cycles {
+    ( $base:expr $(, $max:expr )? ) => {
+        $crate::Cycles::from($base $(, $max)? )
+    };
+}
+
 pub trait Info {
     fn bytes(&self) -> u8;
     fn cycles(&self) -> Cycles;
@@ -100,15 +107,21 @@ macro_rules! with_info_trait {
     (
         $( #[$meta:meta] )*
         $vis:vis enum $type:ident {
-            $( $variant:ident ($inner:path) $(,)? ),*
+            $(
+                $( #[doc = $doc:expr] )*
+                $variant:ident ($inner:path) $(,)?
+            ),*
         }
     ) => {
         $( #[$meta] )*
         $vis enum $type {
-            $( $variant ($inner) ),*
+            $(
+                $( #[doc = $doc] )*
+                $variant ($inner)
+            ),*
         }
 
-        impl Info for $type {
+        impl $crate::Info for $type {
             fn bytes(&self) -> u8 {
                 match self {
                     $( Self::$variant(v) => v.bytes() ),*
@@ -119,6 +132,39 @@ macro_rules! with_info_trait {
                 match self {
                     $( Self::$variant(v) => v.cycles() ),*
                 }
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! with_simple_info {
+    (
+        $( #[$meta:meta] )*
+        $vis:vis struct $type:ident => ( $bytes:expr, $cycles:expr );
+    ) => {
+        $( #[$meta] )*
+        $vis struct $type;
+
+        impl $crate::Info for $type {
+            fn bytes(&self) -> u8 {
+                $bytes
+            }
+
+            fn cycles(&self) -> $crate::Cycles {
+                $cycles.into()
+            }
+        }
+    };
+
+    ( $type:ty => ($bytes:expr, $cycles:expr) ) => {
+        impl $crate::Info for $type {
+            fn bytes(&self) -> u8 {
+                $bytes
+            }
+
+            fn cycles(&self) -> $crate::Cycles {
+                $cycles.into()
             }
         }
     };

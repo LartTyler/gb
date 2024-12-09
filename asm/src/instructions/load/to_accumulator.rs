@@ -1,0 +1,45 @@
+use super::Action;
+use crate::{cycles, Cycles, Info, Pair};
+use derive_more::derive::Display;
+
+#[derive(Debug, Copy, Clone, Display)]
+#[display("A, {source}")]
+pub struct ToAccumulator {
+    pub source: ToAccumulatorSource,
+}
+
+impl Info for ToAccumulator {
+    fn bytes(&self) -> u8 {
+        use ToAccumulatorSource::*;
+
+        match self.source {
+            PairPointer(_) | HLX(_) | HighC => 1,
+            HighConstantPointer => 2,
+            ConstantPointer => 3,
+        }
+    }
+
+    fn cycles(&self) -> Cycles {
+        use ToAccumulatorSource::*;
+
+        match self.source {
+            PairPointer(_) | HLX(_) | HighC => cycles!(2),
+            HighConstantPointer => cycles!(3),
+            ConstantPointer => cycles!(4),
+        }
+    }
+}
+
+#[derive(Debug, Copy, Clone, Display)]
+pub enum ToAccumulatorSource {
+    #[display("({_0})")]
+    PairPointer(Pair),
+    #[display("(d16)")]
+    ConstantPointer,
+    #[display("($FF00+d8)")]
+    HighConstantPointer,
+    #[display("(HL{_0})")]
+    HLX(Action),
+    #[display("($FF00+C)")]
+    HighC,
+}
