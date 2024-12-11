@@ -1,10 +1,13 @@
-use crate::{Cycles, Info, Pair, Register};
-use std::fmt::Display;
+use crate::{cycles, Cycles, Info, Pair, Register};
+use derive_more::derive::Display;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Display)]
 pub enum Add {
+    #[display("ADD {_0}")]
     ToAccumulator(ToAccumulator),
+    #[display("ADD {_0}")]
     ToHLPair(ToHLPair),
+    #[display("ADD SP, s8")]
     ToStackPointer,
 }
 
@@ -12,7 +15,7 @@ impl Info for Add {
     fn bytes(&self) -> u8 {
         match self {
             Self::ToAccumulator(v) => v.bytes(),
-            Self::ToHLPair(v) => v.bytes(),
+            Self::ToHLPair(_) => 1,
             Self::ToStackPointer => 2,
         }
     }
@@ -20,25 +23,14 @@ impl Info for Add {
     fn cycles(&self) -> Cycles {
         match self {
             Self::ToAccumulator(v) => v.cycles(),
-            Self::ToHLPair(v) => v.cycles(),
-            Self::ToStackPointer => Cycles::Fixed(4),
+            Self::ToHLPair(_) => cycles!(2),
+            Self::ToStackPointer => cycles!(4),
         }
     }
 }
 
-impl Display for Add {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ADD ")?;
-
-        match self {
-            Self::ToStackPointer => write!(f, "SP, s8"),
-            Self::ToAccumulator(v) => write!(f, "{v}"),
-            Self::ToHLPair(v) => write!(f, "HL, {v}"),
-        }
-    }
-}
-
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Display)]
+#[display("A, {source}")]
 pub struct ToAccumulator {
     pub source: ToAccumulatorSource,
 }
@@ -49,7 +41,7 @@ impl Info for ToAccumulator {
 
         match self.source {
             PointerValue | Register(_) => 1,
-            ImmediateByte => 2,
+            ConstantByte => 2,
         }
     }
 
@@ -58,65 +50,31 @@ impl Info for ToAccumulator {
 
         match self.source {
             Register(_) => Cycles::Fixed(1),
-            ImmediateByte | PointerValue => Cycles::Fixed(2),
+            ConstantByte | PointerValue => Cycles::Fixed(2),
         }
     }
 }
 
-impl Display for ToAccumulator {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "A, {}", self.source)
-    }
-}
-
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Display)]
 pub enum ToAccumulatorSource {
+    #[display("{_0}")]
     Register(Register),
+    #[display("(HL)")]
     PointerValue,
-    ImmediateByte,
+    #[display("d8")]
+    ConstantByte,
 }
 
-impl Display for ToAccumulatorSource {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::PointerValue => write!(f, "(HL)"),
-            Self::Register(r) => write!(f, "{r}"),
-            Self::ImmediateByte => write!(f, "d8"),
-        }
-    }
-}
-
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Display)]
+#[display("HL, {source}")]
 pub struct ToHLPair {
     pub source: ToHLPairSource,
 }
 
-impl Info for ToHLPair {
-    fn bytes(&self) -> u8 {
-        1
-    }
-    fn cycles(&self) -> Cycles {
-        Cycles::Fixed(2)
-    }
-}
-
-impl Display for ToHLPair {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "HL, {}", self.source)
-    }
-}
-
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Display)]
 pub enum ToHLPairSource {
+    #[display("{_0}")]
     Pair(Pair),
+    #[display("SP")]
     StackPointer,
-}
-
-impl Display for ToHLPairSource {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::StackPointer => write!(f, "SP"),
-            Self::Pair(p) => write!(f, "{p}"),
-        }
-    }
 }

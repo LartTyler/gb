@@ -13,7 +13,7 @@ impl Info for Compare {
 
         match self.source {
             Register(_) | PointerValue => 1,
-            ImmediateByte => 2,
+            ConstantByte => 2,
         }
     }
 
@@ -22,7 +22,7 @@ impl Info for Compare {
 
         match self.source {
             Register(_) => Cycles::Fixed(1),
-            ImmediateByte | PointerValue => Cycles::Fixed(2),
+            ConstantByte | PointerValue => Cycles::Fixed(2),
         }
     }
 }
@@ -34,5 +34,5 @@ pub enum Source {
     #[display("(HL)")]
     PointerValue,
     #[display("d8")]
-    ImmediateByte,
+    ConstantByte,
 }

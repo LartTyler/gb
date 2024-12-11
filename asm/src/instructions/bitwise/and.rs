@@ -1,15 +1,10 @@
-use crate::{Cycles, Info, Register};
-use std::fmt::Display;
+use crate::{cycles, Cycles, Info, Register};
+use derive_more::derive::Display;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Display)]
+#[display("AND {source}")]
 pub struct And {
     pub source: Source,
-}
-
-impl Display for And {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "AND {}", self.source)
-    }
 }
 
 impl Info for And {
@@ -18,7 +13,7 @@ impl Info for And {
 
         match self.source {
             Register(_) | PointerValue => 1,
-            ImmediateByte => 2,
+            ConstantByte => 2,
         }
     }
 
@@ -26,25 +21,18 @@ impl Info for And {
         use Source::*;
 
         match self.source {
-            Register(_) => Cycles::Fixed(1),
-            ImmediateByte | PointerValue => Cycles::Fixed(2),
+            Register(_) => cycles!(1),
+            ConstantByte | PointerValue => cycles!(2),
         }
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Display)]
 pub enum Source {
+    #[display("{_0}")]
     Register(Register),
-    ImmediateByte,
+    #[display("d8")]
+    ConstantByte,
+    #[display("(HL)")]
     PointerValue,
-}
-
-impl Display for Source {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Register(v) => write!(f, "{v}"),
-            Self::ImmediateByte => write!(f, "d8"),
-            Self::PointerValue => write!(f, "(HL)"),
-        }
-    }
 }

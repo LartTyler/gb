@@ -14,15 +14,15 @@ impl Info for Jump {
     fn bytes(&self) -> u8 {
         match self.target {
             Pointer => 1,
-            ImmediateWord(_) => 3,
+            ConstantAddress(_) => 3,
         }
     }
 
     fn cycles(&self) -> Cycles {
         match self.target {
             Pointer => Cycles::Fixed(1),
-            ImmediateWord(cond) if cond.is_some() => Cycles::Variable(3, 4),
-            ImmediateWord(_) => Cycles::Fixed(4),
+            ConstantAddress(cond) if cond.is_some() => Cycles::Variable(3, 4),
+            ConstantAddress(_) => Cycles::Fixed(4),
         }
     }
 }
@@ -30,14 +30,14 @@ impl Info for Jump {
 #[derive(Debug, Copy, Clone)]
 pub enum Target {
     Pointer,
-    ImmediateWord(Option<Condition>),
+    ConstantAddress(Option<Condition>),
 }
 
 impl Display for Target {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Pointer => write!(f, "HL"),
-            ImmediateWord(c) => {
+            ConstantAddress(c) => {
                 if let Some(c) = c {
                     write!(f, "{c}, ")?;
                 }
