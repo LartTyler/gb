@@ -1,15 +1,13 @@
-use super::reset::Target;
-use crate::{cycles, Bit, Cycles, Info};
+use crate::{cycles, Cycles, Info, Register};
 use derive_more::derive::Display;
 
 #[derive(Debug, Copy, Clone, Display)]
-#[display("SET {bit}, {target}")]
-pub struct SetBit {
-    pub bit: Bit,
+#[display("SLA {target}")]
+pub struct ShiftLeft {
     pub target: Target,
 }
 
-impl Info for SetBit {
+impl Info for ShiftLeft {
     fn bytes(&self) -> u8 {
         2
     }
@@ -22,4 +20,12 @@ impl Info for SetBit {
             PointerValue => cycles!(4),
         }
     }
+}
+
+#[derive(Debug, Copy, Clone, Display)]
+pub enum Target {
+    #[display("{_0}")]
+    Register(Register),
+    #[display("(HL)")]
+    PointerValue,
 }

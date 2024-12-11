@@ -38,6 +38,12 @@ with_info_trait!(
         Rotate(bitwise::rotate::Rotate),
         Subtract(math::subtract::Subtract),
         SetCarryFlag(misc::SetCarryFlag),
+        SetBit(bitwise::set::SetBit),
+        ShiftLeft(bitwise::shift_left::ShiftLeft),
+        ShiftRight(bitwise::shift_right::ShiftRight),
+        Stop(misc::Stop),
+        Swap(bitwise::swap::Swap),
+        Xor(bitwise::xor::Xor),
     }
 );
 

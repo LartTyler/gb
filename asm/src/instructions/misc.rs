@@ -48,3 +48,9 @@ with_simple_info! {
     #[display("SCF")]
     pub struct SetCarryFlag => (1, 1);
 }
+
+with_simple_info! {
+    #[derive(Debug, Copy, Clone, Display)]
+    #[display("STOP")]
+    pub struct Stop => (0, 2);
+}
