@@ -1,8 +1,9 @@
+use derive_more::derive::Display;
 use std::fmt::Display;
 
 pub mod instructions;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum Register {
     A,
     B,
@@ -29,7 +30,7 @@ impl Display for Register {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Pair {
     BC,
     DE,
@@ -48,7 +49,7 @@ impl Display for Pair {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Flag {
     Carry = 0b0001_0000,
     HalfCarry = 0b0010_0000,
@@ -56,7 +57,7 @@ pub enum Flag {
     Zero = 0b1000_0000,
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Cycles {
     Variable(u8, u8),
     Fixed(u8),
@@ -92,8 +93,12 @@ impl From<(u8, u8)> for Cycles {
 
 #[macro_export]
 macro_rules! cycles {
-    ( $base:expr $(, $max:expr )? ) => {
-        $crate::Cycles::from($base $(, $max)? )
+    ( $base:expr ) => {
+        $crate::Cycles::from($base)
+    };
+
+    ( $base:expr, $max:expr ) => {
+        $crate::Cycles::from(($base, $max))
     };
 }
 
@@ -183,4 +188,50 @@ macro_rules! impl_info {
             }
         }
     };
+}
+
+#[derive(Debug, Copy, Clone, Display, PartialEq, Eq)]
+#[display("{_0}")]
+pub struct Bit(u8);
+
+#[macro_export]
+macro_rules! constant_value_fns {
+    (
+        $(
+            $name:ident => $value:expr $(,)?
+        ),+
+    ) => {
+        $(
+            pub fn $name() -> Self {
+                Self($value)
+            }
+        )*
+    };
+}
+
+impl Bit {
+    const MAX_VALUE: u8 = 7;
+
+    pub fn new(value: u8) -> Result<Self, &'static str> {
+        if value > Self::MAX_VALUE {
+            Err("bit index out of range, must be between zero and seven (inclusive)")
+        } else {
+            Ok(Self(value))
+        }
+    }
+
+    pub fn value(&self) -> u8 {
+        self.0
+    }
+
+    constant_value_fns! {
+        zero => 0,
+        one => 1,
+        two => 2,
+        three => 3,
+        four => 4,
+        five => 5,
+        six => 6,
+        seven => 7,
+    }
 }

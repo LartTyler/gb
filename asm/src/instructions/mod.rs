@@ -6,10 +6,11 @@ pub mod jump;
 pub mod load;
 pub mod math;
 pub mod misc;
+pub mod stack;
 pub mod subroutine;
 
 with_info_trait!(
-    #[derive(Debug, Display)]
+    #[derive(Debug, Display, Copy, Clone)]
     pub enum Instruction {
         AddPlusCarry(math::adc::AddPlusCarry),
         Add(math::add::Add),
@@ -30,6 +31,13 @@ with_info_trait!(
         Load(load::Load),
         Nop(misc::Nop),
         Or(bitwise::or::Or),
+        Pop(stack::pop::Pop),
+        Push(stack::push::Push),
+        ResetBit(bitwise::reset::ResetBit),
+        Return(subroutine::ret::Return),
+        Rotate(bitwise::rotate::Rotate),
+        Subtract(math::subtract::Subtract),
+        SetCarryFlag(misc::SetCarryFlag),
     }
 );
 

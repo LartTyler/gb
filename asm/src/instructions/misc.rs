@@ -42,3 +42,9 @@ with_simple_info! {
     #[display("NOP")]
     pub struct Nop => (1, 1);
 }
+
+with_simple_info! {
+    #[derive(Debug, Copy, Clone, Display)]
+    #[display("SCF")]
+    pub struct SetCarryFlag => (1, 1);
+}
