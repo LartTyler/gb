@@ -1,0 +1,9 @@
+[package]
+name = "gb_hardware"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+derive_more = { version = "1.0.0", features = ["display"] }
+gb_asm = { path = "../asm" }
+thiserror = "2.0"

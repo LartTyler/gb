@@ -1,0 +1,9 @@
+pub const OFFSET_TITLE_START: usize = 0x134;
+pub const OFFSET_GBC_SUPPORT_TYPE: usize = 0x143;
+pub const OFFSET_NEW_LICENSEE_HIGH: usize = 0x144;
+pub const OFFSET_NEW_LICENSEE_LOW: usize = 0x145;
+pub const OFFSET_SGB_SUPPORT_FLAG: usize = 0x146;
+pub const OFFSET_CONTROLLER_TYPE: usize = 0x147;
+pub const OFFSET_RAM_SIZE: usize = 0x149;
+pub const OFFSET_OLD_LICENSEE: usize = 0x14B;
+pub const OFFSET_VERSION: usize = 0x14C;

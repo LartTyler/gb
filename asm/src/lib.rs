@@ -49,6 +49,16 @@ impl Display for Pair {
     }
 }
 
+impl Pair {
+    pub fn as_registers(&self) -> [Register; 2] {
+        match self {
+            Self::BC => [Register::B, Register::C],
+            Self::DE => [Register::D, Register::E],
+            Self::HL => [Register::H, Register::L],
+        }
+    }
+}
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Flag {
     Carry = 0b0001_0000,
