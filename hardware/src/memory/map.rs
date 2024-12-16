@@ -18,7 +18,7 @@ pub const RAM0_END: usize = 0xCFFF;
 
 pub const RAM_BANK_START: usize = 0xD000;
 pub const RAM_BANK_END: usize = 0xDFFF;
-pub const RANK_BANK_SIZE: usize = RAM_BANK_END - RAM_BANK_START + 1;
+pub const RAM_BANK_SIZE: usize = RAM_BANK_END - RAM_BANK_START + 1;
 
 pub const ECHO_START: usize = 0xE000;
 pub const ECHO_END: usize = 0xFDFF;
@@ -26,6 +26,9 @@ pub const ECHO_END: usize = 0xFDFF;
 pub const OAM_START: usize = 0xFE00;
 pub const OAM_END: usize = 0xFE9F;
 pub const OAM_SIZE: usize = OAM_END - OAM_START + 1;
+
+pub const UNUSED_START: usize = 0xFEA0;
+pub const UNUSED_END: usize = 0xFEFF;
 
 pub const INTERRUPT_FLAGS: usize = 0xFF0F;
 

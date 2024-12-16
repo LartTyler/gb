@@ -1,8 +1,7 @@
-use std::fmt::Debug;
-
-use crate::memory::map::EXTERNAL_RAM_SIZE;
+use crate::{memory::map::EXTERNAL_RAM_SIZE, DeviceMode};
 use map::*;
 use mbc::{Controller, ControllerAccess};
+use std::fmt::Debug;
 
 pub mod map;
 pub mod mbc;
@@ -12,6 +11,17 @@ pub enum SupportedDeviceMode {
     Color,
     Classic,
     Any,
+}
+
+impl From<SupportedDeviceMode> for DeviceMode {
+    fn from(value: SupportedDeviceMode) -> Self {
+        use SupportedDeviceMode::*;
+
+        match value {
+            Color | Any => Self::Color,
+            Classic => Self::Classic,
+        }
+    }
 }
 
 pub struct Cartridge {
@@ -33,6 +43,22 @@ impl Cartridge {
             version: read_version(&rom),
             controller: Controller::create_for_rom(rom)?,
         })
+    }
+
+    pub fn rom_read(&self, address: usize) -> u8 {
+        self.controller.rom_read(address)
+    }
+
+    pub fn rom_write(&mut self, address: usize, value: u8) {
+        self.controller.rom_write(address, value)
+    }
+
+    pub fn ram_read(&self, address: usize) -> u8 {
+        self.controller.ram_read(address)
+    }
+
+    pub fn ram_write(&mut self, address: usize, value: u8) {
+        self.controller.ram_write(address, value)
     }
 }
 
