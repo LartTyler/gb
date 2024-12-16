@@ -67,7 +67,7 @@ pub fn parse(opcode: u8) -> Option<Instruction> {
         0x2F => complement_accumulator(),
 
         0x30 => relative_jump(NotCarry),
-        0x31 => load_into_stack_pointer(),
+        0x31 => load_from_constant_into_stack_pointer(),
         0x32 => load_into_hl_incdec(Decrement),
         0x33 => increment_stack_pointer(),
         0x34 => increment_pointer_value(),
@@ -276,7 +276,7 @@ pub fn parse(opcode: u8) -> Option<Instruction> {
         0xF6 => or_constant(),
         0xF7 => call_vector(VectorSlot::Six),
         0xF8 => load_stack_pointer_plus_signed_constant_into_hl(),
-        0xF9 => load_into_stack_pointer(),
+        0xF9 => load_from_hl_into_stack_pointer(),
         0xFA => load_constant_pointer_into_accumulator(),
         0xFB => enable_interrupts(),
         // 0xFC | 0xFD => None,

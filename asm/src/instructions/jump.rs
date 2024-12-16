@@ -69,6 +69,8 @@ impl Info for JumpRelative {
 
 impl Display for JumpRelative {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "JR ")?;
+
         if let Some(cond) = self.condition {
             write!(f, "{cond}, ")?;
         }

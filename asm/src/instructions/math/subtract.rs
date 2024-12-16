@@ -34,7 +34,7 @@ impl Display for Subtract {
             write!(f, "SUB")?;
         }
 
-        write!(f, "{}", self.source)
+        write!(f, " {}", self.source)
     }
 }
 

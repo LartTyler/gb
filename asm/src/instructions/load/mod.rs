@@ -139,16 +139,44 @@ pub enum ToPairPointerTarget {
     HLX(Action),
 }
 
-with_simple_info! {
-    #[derive(Debug, Copy, Clone, Display)]
-    #[display("SP, HL")]
-    pub struct ToStackPointer => (1, 2);
+#[derive(Debug, Copy, Clone, Display)]
+#[display("SP, {source}")]
+pub struct ToStackPointer {
+    pub source: ToStackPointerSource,
+}
+
+impl Info for ToStackPointer {
+    fn bytes(&self) -> u8 {
+        use ToStackPointerSource::*;
+
+        match self.source {
+            HL => 1,
+            ConstantWord => 3,
+        }
+    }
+
+    fn cycles(&self) -> Cycles {
+        use ToStackPointerSource::*;
+
+        match self.source {
+            HL => cycles!(2),
+            ConstantWord => cycles!(3),
+        }
+    }
 }
 
 impl From<ToStackPointer> for Instruction {
     fn from(value: ToStackPointer) -> Self {
         Load::from(value).into()
     }
+}
+
+#[derive(Debug, Copy, Clone, Display)]
+pub enum ToStackPointerSource {
+    #[display("HL")]
+    HL,
+    #[display("d16")]
+    ConstantWord,
 }
 
 #[derive(Debug, Copy, Clone, Display)]

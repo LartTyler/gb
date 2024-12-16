@@ -48,6 +48,12 @@ with_info_trait!(
     }
 );
 
+impl Instruction {
+    pub fn is_prefix(&self) -> bool {
+        matches!(self, Self::Prefix(_))
+    }
+}
+
 #[derive(Debug, Copy, Clone, Display)]
 pub enum Condition {
     #[display("Z")]

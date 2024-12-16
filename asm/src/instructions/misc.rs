@@ -34,7 +34,7 @@ with_simple_info! {
 with_simple_info! {
     #[derive(Debug, Copy, Clone, Display)]
     #[display("HALT")]
-    pub struct Halt => (0, 1);
+    pub struct Halt => (1, 1);
 }
 
 with_simple_info! {
@@ -52,11 +52,11 @@ with_simple_info! {
 with_simple_info! {
     #[derive(Debug, Copy, Clone, Display)]
     #[display("STOP")]
-    pub struct Stop => (0, 2);
+    pub struct Stop => (1, 2);
 }
 
 with_simple_info! {
     #[derive(Debug, Copy, Clone, Display)]
     #[display("PREFIX")]
-    pub struct Prefix => (0, 0);
+    pub struct Prefix => (1, 1);
 }

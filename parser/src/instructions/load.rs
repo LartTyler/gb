@@ -21,8 +21,18 @@ pub fn load_into_hl_incdec(action: Action) -> Instruction {
     .into()
 }
 
-pub fn load_into_stack_pointer() -> Instruction {
-    ToStackPointer.into()
+pub fn load_from_constant_into_stack_pointer() -> Instruction {
+    ToStackPointer {
+        source: ToStackPointerSource::ConstantWord,
+    }
+    .into()
+}
+
+pub fn load_from_hl_into_stack_pointer() -> Instruction {
+    ToStackPointer {
+        source: ToStackPointerSource::HL,
+    }
+    .into()
 }
 
 pub fn load_into_register_from_constant(register: Register) -> Instruction {
