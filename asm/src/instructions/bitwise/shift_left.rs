@@ -1,10 +1,21 @@
 use crate::{cycles, Cycles, Info, Register};
-use derive_more::derive::Display;
+use std::fmt::Display;
 
-#[derive(Debug, Copy, Clone, Display)]
-#[display("SLA {target}")]
-pub struct ShiftLeft {
-    pub target: Target,
+#[derive(Debug, Copy, Clone)]
+pub enum ShiftLeft {
+    Register(Register),
+    PointerValue,
+}
+
+impl Display for ShiftLeft {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "SLA ")?;
+
+        match self {
+            Self::Register(v) => write!(f, "{v}"),
+            Self::PointerValue => write!(f, "(HL)"),
+        }
+    }
 }
 
 impl Info for ShiftLeft {
@@ -13,19 +24,9 @@ impl Info for ShiftLeft {
     }
 
     fn cycles(&self) -> Cycles {
-        use Target::*;
-
-        match self.target {
-            Register(_) => cycles!(2),
-            PointerValue => cycles!(4),
+        match self {
+            Self::Register(_) => cycles!(2),
+            Self::PointerValue => cycles!(4),
         }
     }
-}
-
-#[derive(Debug, Copy, Clone, Display)]
-pub enum Target {
-    #[display("{_0}")]
-    Register(Register),
-    #[display("(HL)")]
-    PointerValue,
 }

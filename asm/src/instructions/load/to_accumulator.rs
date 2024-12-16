@@ -1,5 +1,5 @@
-use super::Action;
-use crate::{cycles, Cycles, Info, Pair};
+use super::{Action, Load};
+use crate::{cycles, instructions::Instruction, Cycles, Info, Pair};
 use derive_more::derive::Display;
 
 #[derive(Debug, Copy, Clone, Display)]
@@ -27,6 +27,12 @@ impl Info for ToAccumulator {
             HighConstantPointer => cycles!(3),
             ConstantPointer => cycles!(4),
         }
+    }
+}
+
+impl From<ToAccumulator> for Instruction {
+    fn from(value: ToAccumulator) -> Self {
+        Load::from(value).into()
     }
 }
 

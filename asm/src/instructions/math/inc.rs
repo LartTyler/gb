@@ -1,11 +1,11 @@
 use crate::{Cycles, Info, Pair, Register};
 use derive_more::derive::Display;
-use Source::*;
+use Target::*;
 
 #[derive(Debug, Copy, Clone, Display)]
-#[display("INC {source}")]
+#[display("INC {target}")]
 pub struct Increment {
-    pub source: Source,
+    pub target: Target,
 }
 
 impl Info for Increment {
@@ -14,7 +14,7 @@ impl Info for Increment {
     }
 
     fn cycles(&self) -> Cycles {
-        match self.source {
+        match self.target {
             Register(_) => Cycles::Fixed(1),
             Pair(_) | StackPointer => Cycles::Fixed(2),
             PointerValue => Cycles::Fixed(3),
@@ -23,7 +23,7 @@ impl Info for Increment {
 }
 
 #[derive(Debug, Copy, Clone, Display)]
-pub enum Source {
+pub enum Target {
     #[display("{_0}")]
     Register(Register),
     #[display("{_0}")]

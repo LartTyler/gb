@@ -113,7 +113,7 @@ macro_rules! with_info_trait {
         $( #[$meta:meta] )*
         $vis:vis enum $type:ident {
             $(
-                $( #[doc = $doc:expr] )*
+                $( #[$variant_meta:meta] )*
                 $variant:ident ($inner:path) $(,)?
             ),*
         }
@@ -121,7 +121,7 @@ macro_rules! with_info_trait {
         $( #[$meta] )*
         $vis enum $type {
             $(
-                $( #[doc = $doc] )*
+                $( #[$variant_meta] )*
                 $variant ($inner)
             ),*
         }

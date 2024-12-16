@@ -1,38 +1,37 @@
-use crate::{Cycles, Info, Register};
-use derive_more::derive::Display;
+use crate::{cycles, Cycles, Info, Register};
+use std::fmt::Display;
 
-#[derive(Debug, Copy, Clone, Display)]
-#[display("CP {source}")]
-pub struct Compare {
-    pub source: Source,
+#[derive(Debug, Copy, Clone)]
+pub enum Compare {
+    Register(Register),
+    PointerValue,
+    ConstantByte,
+}
+
+impl Display for Compare {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "CP ")?;
+
+        match self {
+            Self::Register(v) => write!(f, "{v}"),
+            Self::PointerValue => write!(f, "(HL)"),
+            Self::ConstantByte => write!(f, "d8"),
+        }
+    }
 }
 
 impl Info for Compare {
     fn bytes(&self) -> u8 {
-        use Source::*;
-
-        match self.source {
-            Register(_) | PointerValue => 1,
-            ConstantByte => 2,
+        match self {
+            Self::Register(_) | Self::PointerValue => 1,
+            Self::ConstantByte => 2,
         }
     }
 
-    fn cycles(&self) -> crate::Cycles {
-        use Source::*;
-
-        match self.source {
-            Register(_) => Cycles::Fixed(1),
-            ConstantByte | PointerValue => Cycles::Fixed(2),
+    fn cycles(&self) -> Cycles {
+        match self {
+            Self::Register(_) => cycles!(1),
+            Self::ConstantByte | Self::PointerValue => cycles!(2),
         }
     }
-}
-
-#[derive(Debug, Copy, Clone, Display)]
-pub enum Source {
-    #[display("{_0}")]
-    Register(Register),
-    #[display("(HL)")]
-    PointerValue,
-    #[display("d8")]
-    ConstantByte,
 }

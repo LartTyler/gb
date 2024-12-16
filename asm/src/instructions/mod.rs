@@ -1,5 +1,5 @@
 use crate::{with_info_trait, Cycles};
-use derive_more::derive::Display;
+use derive_more::derive::{Display, From};
 
 pub mod bitwise;
 pub mod jump;
@@ -10,12 +10,12 @@ pub mod stack;
 pub mod subroutine;
 
 with_info_trait!(
-    #[derive(Debug, Display, Copy, Clone)]
+    #[derive(Debug, Display, Copy, Clone, From)]
     pub enum Instruction {
         AddPlusCarry(math::adc::AddPlusCarry),
         Add(math::add::Add),
         And(bitwise::and::And),
-        Bit(bitwise::bit::Bit),
+        Test(bitwise::test::Test),
         Call(subroutine::call::Call),
         ComplementCarryFlag(misc::ComplementCarryFlag),
         Compare(math::cp::Compare),
@@ -44,6 +44,7 @@ with_info_trait!(
         Stop(misc::Stop),
         Swap(bitwise::swap::Swap),
         Xor(bitwise::xor::Xor),
+        Prefix(misc::Prefix),
     }
 );
 

@@ -1,0 +1,8 @@
+[package]
+name = "gb_parser"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+gb_asm = { path = "../asm" }
+lazy_static = "1.5.0"

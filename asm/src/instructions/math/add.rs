@@ -1,7 +1,7 @@
-use crate::{cycles, Cycles, Info, Pair, Register};
-use derive_more::derive::Display;
+use crate::{cycles, instructions::Instruction, Cycles, Info, Pair, Register};
+use derive_more::derive::{Display, From};
 
-#[derive(Debug, Copy, Clone, Display)]
+#[derive(Debug, Copy, Clone, Display, From)]
 pub enum Add {
     #[display("ADD {_0}")]
     ToAccumulator(ToAccumulator),
@@ -55,6 +55,12 @@ impl Info for ToAccumulator {
     }
 }
 
+impl From<ToAccumulator> for Instruction {
+    fn from(value: ToAccumulator) -> Self {
+        Add::from(value).into()
+    }
+}
+
 #[derive(Debug, Copy, Clone, Display)]
 pub enum ToAccumulatorSource {
     #[display("{_0}")]
@@ -69,6 +75,12 @@ pub enum ToAccumulatorSource {
 #[display("HL, {source}")]
 pub struct ToHLPair {
     pub source: ToHLPairSource,
+}
+
+impl From<ToHLPair> for Instruction {
+    fn from(value: ToHLPair) -> Self {
+        Add::from(value).into()
+    }
 }
 
 #[derive(Debug, Copy, Clone, Display)]

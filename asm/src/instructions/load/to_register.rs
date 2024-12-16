@@ -1,5 +1,7 @@
-use crate::{cycles, Cycles, Info, Register};
+use crate::{cycles, instructions::Instruction, Cycles, Info, Register};
 use derive_more::derive::Display;
+
+use super::Load;
 
 #[derive(Debug, Copy, Clone, Display)]
 #[display("{target}, {source}")]
@@ -25,6 +27,12 @@ impl Info for ToRegister {
             Register(_) => cycles!(1),
             PointerValue | ConstantByte => cycles!(2),
         }
+    }
+}
+
+impl From<ToRegister> for Instruction {
+    fn from(value: ToRegister) -> Self {
+        Load::from(value).into()
     }
 }
 

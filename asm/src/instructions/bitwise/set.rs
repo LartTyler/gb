@@ -3,9 +3,9 @@ use crate::{cycles, Bit, Cycles, Info};
 use derive_more::derive::Display;
 
 #[derive(Debug, Copy, Clone, Display)]
-#[display("SET {bit}, {target}")]
+#[display("SET {position}, {target}")]
 pub struct SetBit {
-    pub bit: Bit,
+    pub position: Bit,
     pub target: Target,
 }
 

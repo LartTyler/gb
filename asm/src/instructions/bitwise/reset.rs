@@ -2,9 +2,9 @@ use crate::{cycles, Bit, Cycles, Info, Register};
 use derive_more::derive::Display;
 
 #[derive(Debug, Copy, Clone, Display)]
-#[display("RES {bit}, {target}")]
+#[display("RES {position}, {target}")]
 pub struct ResetBit {
-    pub bit: Bit,
+    pub position: Bit,
     pub target: Target,
 }
 

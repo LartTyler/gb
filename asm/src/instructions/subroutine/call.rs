@@ -3,7 +3,7 @@ use std::fmt::Display;
 
 #[derive(Debug, Copy, Clone)]
 pub enum Call {
-    Vector(Vector),
+    Vector(VectorSlot),
     ConstantAddress(Option<Condition>),
 }
 
@@ -32,7 +32,7 @@ impl Info for Call {
 impl Display for Call {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Vector(v) => write!(f, "RST {}", v.value()),
+            Self::Vector(v) => write!(f, "RST {}", *v as u8),
             Self::ConstantAddress(cond) => {
                 write!(f, "CALL ")?;
 
@@ -47,20 +47,16 @@ impl Display for Call {
 }
 
 #[derive(Debug, Copy, Clone)]
-pub struct Vector(u8);
-
-impl Vector {
-    const ALLOWED_VALUES: &[u8] = &[0, 8, 10, 18, 20, 28, 30, 38];
-
-    pub fn new(value: u8) -> Result<Self, &'static str> {
-        if !Self::ALLOWED_VALUES.contains(&value) {
-            Err("value is not a recognized jump vector")
-        } else {
-            Ok(Self(value))
-        }
-    }
-
-    pub fn value(&self) -> u8 {
-        self.0
-    }
+#[repr(u8)]
+/// Represents the "restart vector" slots present at the start of ROM. Can be cast to a `u8` in
+/// order to access the address represented by each slot.
+pub enum VectorSlot {
+    Zero = 0,
+    One = 8,
+    Two = 10,
+    Three = 18,
+    Four = 20,
+    Five = 28,
+    Six = 30,
+    Seven = 38,
 }

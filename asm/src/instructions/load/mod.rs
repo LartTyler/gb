@@ -1,5 +1,5 @@
 use crate::{cycles, with_info_trait, with_simple_info, Cycles, Info, Pair, Register};
-use derive_more::derive::Display;
+use derive_more::derive::{Display, From};
 
 pub mod to_register;
 pub use to_register::*;
@@ -7,8 +7,10 @@ pub use to_register::*;
 pub mod to_accumulator;
 pub use to_accumulator::*;
 
+use super::Instruction;
+
 with_info_trait!(
-    #[derive(Debug, Copy, Clone, Display)]
+    #[derive(Debug, Copy, Clone, Display, From)]
     #[display("LD {_0}")]
     pub enum Load {
         /// LD r8, r8
@@ -62,12 +64,18 @@ pub enum Action {
 }
 
 #[derive(Debug, Copy, Clone, Display)]
-#[display("{source}, d16")]
+#[display("{target}, d16")]
 pub struct ToPair {
-    pub source: Pair,
+    pub target: Pair,
 }
 
 with_simple_info!(ToPair => (3, 3));
+
+impl From<ToPair> for Instruction {
+    fn from(value: ToPair) -> Self {
+        Load::from(value).into()
+    }
+}
 
 #[derive(Debug, Copy, Clone, Display)]
 #[display("(HL), {source}")]
@@ -95,6 +103,12 @@ impl Info for ToHLPointer {
     }
 }
 
+impl From<ToHLPointer> for Instruction {
+    fn from(value: ToHLPointer) -> Self {
+        Load::from(value).into()
+    }
+}
+
 #[derive(Debug, Copy, Clone, Display)]
 pub enum ToHLPointerSource {
     #[display("{_0}")]
@@ -111,6 +125,12 @@ pub struct ToPairPointer {
 
 with_simple_info!(ToPairPointer => (1, 2));
 
+impl From<ToPairPointer> for Instruction {
+    fn from(value: ToPairPointer) -> Self {
+        Load::from(value).into()
+    }
+}
+
 #[derive(Debug, Copy, Clone, Display)]
 pub enum ToPairPointerTarget {
     #[display("({_0})")]
@@ -125,10 +145,45 @@ with_simple_info! {
     pub struct ToStackPointer => (1, 2);
 }
 
-with_simple_info! {
-    #[derive(Debug, Copy, Clone, Display)]
-    #[display("(d16), A")]
-    pub struct ToConstantPointer => (3, 4);
+impl From<ToStackPointer> for Instruction {
+    fn from(value: ToStackPointer) -> Self {
+        Load::from(value).into()
+    }
+}
+
+#[derive(Debug, Copy, Clone, Display)]
+#[display("(d16), {source}")]
+pub struct ToConstantPointer {
+    pub source: ToConstantPointerSource,
+}
+
+impl Info for ToConstantPointer {
+    fn bytes(&self) -> u8 {
+        3
+    }
+
+    fn cycles(&self) -> Cycles {
+        use ToConstantPointerSource::*;
+
+        match self.source {
+            Accumulator => cycles!(4),
+            StackPointer => cycles!(5),
+        }
+    }
+}
+
+impl From<ToConstantPointer> for Instruction {
+    fn from(value: ToConstantPointer) -> Self {
+        Load::from(value).into()
+    }
+}
+
+#[derive(Debug, Copy, Clone, Display)]
+pub enum ToConstantPointerSource {
+    #[display("A")]
+    Accumulator,
+    #[display("SP")]
+    StackPointer,
 }
 
 with_simple_info! {
@@ -137,14 +192,32 @@ with_simple_info! {
     pub struct ToHighC => (1, 2);
 }
 
+impl From<ToHighC> for Instruction {
+    fn from(value: ToHighC) -> Self {
+        Load::ToHighC(value).into()
+    }
+}
+
 with_simple_info! {
     #[derive(Debug, Copy, Clone, Display)]
     #[display("HL, SP+s8")]
     pub struct ToHL => (2, 3);
 }
 
+impl From<ToHL> for Instruction {
+    fn from(value: ToHL) -> Self {
+        Load::ToHL(value).into()
+    }
+}
+
 with_simple_info! {
     #[derive(Debug, Copy, Clone, Display)]
     #[display("($FF00+d8), A")]
     pub struct ToHighConstantPointer => (2, 3);
+}
+
+impl From<ToHighConstantPointer> for Instruction {
+    fn from(value: ToHighConstantPointer) -> Self {
+        Load::from(value).into()
+    }
 }

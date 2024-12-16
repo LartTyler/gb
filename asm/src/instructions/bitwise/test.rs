@@ -1,14 +1,14 @@
-use crate::{Cycles, Info, Register};
+use crate::{Bit, Cycles, Info, Register};
 use derive_more::derive::Display;
 
 #[derive(Debug, Copy, Clone, Display)]
 #[display("BIT {position}, {source}")]
-pub struct Bit {
-    pub position: u8,
+pub struct Test {
+    pub position: Bit,
     pub source: Source,
 }
 
-impl Info for Bit {
+impl Info for Test {
     fn bytes(&self) -> u8 {
         2
     }

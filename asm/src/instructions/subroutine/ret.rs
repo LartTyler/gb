@@ -1,12 +1,22 @@
 use crate::{cycles, instructions::Condition, Cycles, Info};
-use derive_more::derive::Display;
 use std::fmt::Display;
 
-#[derive(Debug, Copy, Clone, Display)]
+#[derive(Debug, Copy, Clone)]
 pub enum Return {
-    Normal(Normal),
-    #[display("RETI")]
+    Normal(Option<Condition>),
     EnableInterrupts,
+}
+
+impl Display for Return {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "RET")?;
+
+        match self {
+            Self::EnableInterrupts => write!(f, "I"),
+            Self::Normal(Some(cond)) => write!(f, " {cond}"),
+            _ => Ok(()),
+        }
+    }
 }
 
 impl Info for Return {
@@ -16,31 +26,9 @@ impl Info for Return {
 
     fn cycles(&self) -> Cycles {
         match self {
-            Self::Normal(inner) => {
-                if inner.condition.is_some() {
-                    cycles!(2, 5)
-                } else {
-                    cycles!(4)
-                }
-            }
+            Self::Normal(Some(_)) => cycles!(2, 5),
+            Self::Normal(None) => cycles!(4),
             Self::EnableInterrupts => cycles!(4),
         }
-    }
-}
-
-#[derive(Debug, Copy, Clone)]
-pub struct Normal {
-    pub condition: Option<Condition>,
-}
-
-impl Display for Normal {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "RET")?;
-
-        if let Some(cond) = self.condition {
-            write!(f, " {cond}")?;
-        }
-
-        Ok(())
     }
 }

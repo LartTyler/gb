@@ -54,3 +54,9 @@ with_simple_info! {
     #[display("STOP")]
     pub struct Stop => (0, 2);
 }
+
+with_simple_info! {
+    #[derive(Debug, Copy, Clone, Display)]
+    #[display("PREFIX")]
+    pub struct Prefix => (0, 0);
+}
