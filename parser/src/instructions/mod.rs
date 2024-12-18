@@ -33,3 +33,6 @@ pub use stack::*;
 
 pub mod call;
 pub use call::*;
+
+pub mod compare;
+pub use compare::*;

@@ -1,6 +1,6 @@
-use crate::{Cycles, Info, Pair, Register};
+use super::dec::Target::{self, *};
+use crate::{Cycles, Info};
 use derive_more::derive::Display;
-use Target::*;
 
 #[derive(Debug, Copy, Clone, Display)]
 #[display("INC {target}")]
@@ -20,16 +20,4 @@ impl Info for Increment {
             PointerValue => Cycles::Fixed(3),
         }
     }
-}
-
-#[derive(Debug, Copy, Clone, Display)]
-pub enum Target {
-    #[display("{_0}")]
-    Register(Register),
-    #[display("{_0}")]
-    Pair(Pair),
-    #[display("SP")]
-    StackPointer,
-    #[display("(HL)")]
-    PointerValue,
 }

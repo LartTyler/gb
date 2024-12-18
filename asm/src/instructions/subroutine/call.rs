@@ -47,7 +47,7 @@ impl Display for Call {
 }
 
 #[derive(Debug, Copy, Clone)]
-#[repr(u8)]
+#[repr(u16)]
 /// Represents the "restart vector" slots present at the start of ROM. Can be cast to a `u8` in
 /// order to access the address represented by each slot.
 pub enum VectorSlot {

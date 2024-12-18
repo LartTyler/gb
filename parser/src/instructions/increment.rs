@@ -1,8 +1,5 @@
 use gb_asm::{
-    instructions::{
-        math::inc::{Target::*, *},
-        Instruction,
-    },
+    instructions::{math::dec::Target::*, math::inc::*, Instruction},
     Pair, Register,
 };
 

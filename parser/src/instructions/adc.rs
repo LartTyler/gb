@@ -1,8 +1,6 @@
 use gb_asm::{
-    instructions::{
-        math::adc::{AddPlusCarry, Source::*},
-        Instruction,
-    },
+    instructions::{math::adc::AddPlusCarry, Instruction},
+    sources::ByteSource::*,
     Register,
 };
 

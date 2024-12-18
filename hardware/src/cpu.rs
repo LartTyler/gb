@@ -1,4 +1,7 @@
-use crate::util::{bytes_to_word, word_to_bytes};
+use crate::{
+    util::{bytes_to_word, word_to_bytes},
+    DeviceMode,
+};
 use gb_asm::{Flag, Pair, Register};
 
 #[derive(Debug, Clone, Default)]
@@ -13,9 +16,35 @@ pub struct Cpu {
     pub flags: u8,
     pub stack_pointer: u16,
     pub program_counter: u16,
+    pub cycle_counter: u16,
+    pub interrupts_enabled: bool,
 }
 
 impl Cpu {
+    pub fn new<M>(mode: M) -> Self
+    where
+        M: Into<DeviceMode>,
+    {
+        let mut cpu = Self {
+            a: 0x11,
+            interrupts_enabled: true,
+            stack_pointer: 0xFFFE,
+            program_counter: 0x100,
+            ..Default::default()
+        };
+
+        match mode.into() {
+            DeviceMode::Classic => cpu.e = 0x08,
+            DeviceMode::Color => {
+                cpu.d = 0xFF;
+                cpu.e = 0x56;
+                cpu.l = 0x0D;
+            }
+        };
+
+        cpu
+    }
+
     pub fn set<T>(&mut self, target: T, value: T::Value)
     where
         T: Settable,
@@ -28,18 +57,6 @@ impl Cpu {
         T: Gettable,
     {
         target.get(self)
-    }
-
-    pub fn set_flag(&mut self, flag: Flag, on: bool) {
-        if on {
-            self.flags |= flag as u8;
-        } else {
-            self.flags &= !(flag as u8);
-        }
-    }
-
-    pub fn get_flag(&self, flag: Flag) -> bool {
-        self.flags & (flag as u8) != 0
     }
 }
 
@@ -68,6 +85,14 @@ impl Settable for Register {
     }
 }
 
+impl Settable for &Register {
+    type Value = u8;
+
+    fn set(&self, cpu: &mut Cpu, value: Self::Value) {
+        (*self).set(cpu, value)
+    }
+}
+
 impl Settable for Pair {
     type Value = u16;
 
@@ -77,6 +102,28 @@ impl Settable for Pair {
 
         cpu.set(high_reg, high);
         cpu.set(low_reg, low);
+    }
+}
+
+impl Settable for &Pair {
+    type Value = u16;
+
+    fn set(&self, cpu: &mut Cpu, value: Self::Value) {
+        (*self).set(cpu, value)
+    }
+}
+
+impl Settable for Flag {
+    type Value = bool;
+
+    fn set(&self, cpu: &mut Cpu, value: Self::Value) {
+        let bit = *self as u8;
+
+        if value {
+            cpu.flags |= bit;
+        } else {
+            cpu.flags &= !bit;
+        }
     }
 }
 
@@ -101,11 +148,43 @@ impl Gettable for Register {
     }
 }
 
+impl Gettable for &Register {
+    type Value = u8;
+
+    fn get(&self, cpu: &Cpu) -> Self::Value {
+        (*self).get(cpu)
+    }
+}
+
 impl Gettable for Pair {
     type Value = u16;
 
     fn get(&self, cpu: &Cpu) -> Self::Value {
         let [high_reg, low_reg] = self.as_registers();
         bytes_to_word(cpu.get(high_reg), cpu.get(low_reg))
+    }
+}
+
+impl Gettable for &Pair {
+    type Value = u16;
+
+    fn get(&self, cpu: &Cpu) -> Self::Value {
+        (*self).get(cpu)
+    }
+}
+
+impl Gettable for Flag {
+    type Value = bool;
+
+    fn get(&self, cpu: &Cpu) -> Self::Value {
+        cpu.flags & (*self as u8) != 0
+    }
+}
+
+impl Gettable for &Flag {
+    type Value = bool;
+
+    fn get(&self, cpu: &Cpu) -> Self::Value {
+        (*self).get(cpu)
     }
 }

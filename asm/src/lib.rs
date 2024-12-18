@@ -2,6 +2,7 @@ use derive_more::derive::Display;
 use std::fmt::Display;
 
 pub mod instructions;
+pub mod sources;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum Register {
@@ -65,6 +66,13 @@ pub enum Flag {
     HalfCarry = 0b0010_0000,
     Subtract = 0b0100_0000,
     Zero = 0b1000_0000,
+}
+
+impl Flag {
+    #[inline]
+    fn mask(&self) -> u8 {
+        *self as u8
+    }
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]

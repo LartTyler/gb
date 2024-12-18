@@ -10,9 +10,6 @@ pub use xor::*;
 pub mod or;
 pub use or::*;
 
-pub mod cp;
-pub use cp::*;
-
 pub mod shift_left;
 pub use shift_left::*;
 

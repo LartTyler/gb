@@ -1,5 +1,6 @@
 use gb_asm::{
     instructions::{math::add::*, Instruction},
+    sources::ByteSource,
     Pair, Register,
 };
 
@@ -12,7 +13,7 @@ pub fn add_pair_to_hl(pair: Pair) -> Instruction {
 
 pub fn add_register_to_accumulator(source: Register) -> Instruction {
     ToAccumulator {
-        source: ToAccumulatorSource::Register(source),
+        source: ByteSource::Register(source),
     }
     .into()
 }
@@ -30,14 +31,14 @@ pub fn add_stack_pointer_to_hl() -> Instruction {
 
 pub fn add_pointer_value_to_accumulator() -> Instruction {
     ToAccumulator {
-        source: ToAccumulatorSource::PointerValue,
+        source: ByteSource::PointerValue,
     }
     .into()
 }
 
 pub fn add_constant_to_accumulator() -> Instruction {
     ToAccumulator {
-        source: ToAccumulatorSource::ConstantByte,
+        source: ByteSource::ConstantByte,
     }
     .into()
 }

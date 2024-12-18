@@ -1,4 +1,4 @@
-use crate::{with_info_trait, Cycles};
+use crate::{with_info_trait, Cycles, Flag};
 use derive_more::derive::{Display, From};
 
 pub mod bitwise;
@@ -64,4 +64,15 @@ pub enum Condition {
     Carry,
     #[display("NC")]
     NotCarry,
+}
+
+impl Condition {
+    pub fn test(&self, flags: u8) -> bool {
+        match self {
+            Self::Zero => flags & Flag::Zero.mask() != 0,
+            Self::NotZero => flags & Flag::Zero.mask() == 0,
+            Self::Carry => flags & Flag::Carry.mask() != 0,
+            Self::NotCarry => flags & Flag::Carry.mask() == 0,
+        }
+    }
 }

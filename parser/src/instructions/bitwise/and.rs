@@ -1,8 +1,6 @@
 use gb_asm::{
-    instructions::{
-        bitwise::and::{Source::*, *},
-        Instruction,
-    },
+    instructions::{bitwise::and::*, Instruction},
+    sources::ByteSource::*,
     Register,
 };
 

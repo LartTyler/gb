@@ -42,6 +42,11 @@ dependencies = [
 [[package]]
 name = "gb_interpreter"
 version = "0.1.0"
+dependencies = [
+ "gb_asm",
+ "gb_hardware",
+ "gb_parser",
+]
 
 [[package]]
 name = "gb_parser"

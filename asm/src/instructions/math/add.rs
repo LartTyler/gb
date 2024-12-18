@@ -1,4 +1,4 @@
-use crate::{cycles, instructions::Instruction, Cycles, Info, Pair, Register};
+use crate::{cycles, instructions::Instruction, sources::ByteSource, Cycles, Info, Pair};
 use derive_more::derive::{Display, From};
 
 #[derive(Debug, Copy, Clone, Display, From)]
@@ -32,12 +32,12 @@ impl Info for Add {
 #[derive(Debug, Copy, Clone, Display)]
 #[display("A, {source}")]
 pub struct ToAccumulator {
-    pub source: ToAccumulatorSource,
+    pub source: ByteSource,
 }
 
 impl Info for ToAccumulator {
     fn bytes(&self) -> u8 {
-        use ToAccumulatorSource::*;
+        use ByteSource::*;
 
         match self.source {
             PointerValue | Register(_) => 1,
@@ -46,7 +46,7 @@ impl Info for ToAccumulator {
     }
 
     fn cycles(&self) -> Cycles {
-        use ToAccumulatorSource::*;
+        use ByteSource::*;
 
         match self.source {
             Register(_) => Cycles::Fixed(1),
@@ -59,16 +59,6 @@ impl From<ToAccumulator> for Instruction {
     fn from(value: ToAccumulator) -> Self {
         Add::from(value).into()
     }
-}
-
-#[derive(Debug, Copy, Clone, Display)]
-pub enum ToAccumulatorSource {
-    #[display("{_0}")]
-    Register(Register),
-    #[display("(HL)")]
-    PointerValue,
-    #[display("d8")]
-    ConstantByte,
 }
 
 #[derive(Debug, Copy, Clone, Display)]

@@ -4,3 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+gb_hardware = { path = "../hardware" }
+gb_parser = { path = "../parser" }
+gb_asm = { path = "../asm" }
