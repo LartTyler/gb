@@ -1,23 +1,32 @@
 use gb_asm::{
     instructions::{
-        stack::{pop::Pop, push::Push},
+        stack::{
+            pop::{Source::*, *},
+            push::Push,
+        },
         Instruction,
     },
     Pair,
 };
 
 pub fn pop_pair(pair: Pair) -> Instruction {
-    Pop::Pair(pair).into()
+    Pop { target: Pair(pair) }.into()
 }
 
 pub fn pop_accumulator_and_flags() -> Instruction {
-    Pop::AccumulatorAndFlags.into()
+    Pop {
+        target: AccumulatorAndFlags,
+    }
+    .into()
 }
 
 pub fn push_pair(pair: Pair) -> Instruction {
-    Push::Pair(pair).into()
+    Push { source: Pair(pair) }.into()
 }
 
 pub fn push_accumulator_and_flags() -> Instruction {
-    Push::AccumulatorAndFlags.into()
+    Push {
+        source: AccumulatorAndFlags,
+    }
+    .into()
 }

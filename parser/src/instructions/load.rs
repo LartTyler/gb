@@ -1,5 +1,6 @@
 use gb_asm::{
     instructions::{load::*, Instruction},
+    sources::ByteSource,
     Pair, Register,
 };
 
@@ -38,7 +39,7 @@ pub fn load_from_hl_into_stack_pointer() -> Instruction {
 pub fn load_into_register_from_constant(register: Register) -> Instruction {
     ToRegister {
         target: register,
-        source: ToRegisterSource::ConstantByte,
+        source: ByteSource::ConstantByte,
     }
     .into()
 }
@@ -46,7 +47,7 @@ pub fn load_into_register_from_constant(register: Register) -> Instruction {
 pub fn load_into_register_from_register(target: Register, source: Register) -> Instruction {
     ToRegister {
         target,
-        source: ToRegisterSource::Register(source),
+        source: ByteSource::Register(source),
     }
     .into()
 }
@@ -54,7 +55,7 @@ pub fn load_into_register_from_register(target: Register, source: Register) -> I
 pub fn load_into_register_from_pointer_value(target: Register) -> Instruction {
     ToRegister {
         target,
-        source: ToRegisterSource::PointerValue,
+        source: ByteSource::PointerValue,
     }
     .into()
 }

@@ -3,8 +3,11 @@ use gb_asm::{instructions::Instruction, Info};
 use gb_hardware::Device;
 
 pub mod bitwise;
+pub mod jump;
+pub mod load;
 pub mod math;
 pub mod misc;
+pub mod stack;
 pub mod subroutine;
 
 impl Execute for Instruction {
@@ -24,9 +27,27 @@ impl Execute for Instruction {
             Self::Decrement(inner) => inner.execute(device),
             Self::DisableInterrupts(inner) => misc::disable_interrupts(inner, device),
             Self::EnableInterrupts(inner) => misc::enable_interrupts(inner, device),
+            Self::Halt(inner) => misc::halt(inner, device),
             Self::Increment(inner) => inner.execute(device),
-            Self::Nop(nop) => nop.cycles().max(),
-            _ => unimplemented!(),
+            Self::Jump(inner) => inner.execute(device),
+            Self::JumpRelative(inner) => inner.execute(device),
+            Self::Load(inner) => inner.execute(device),
+            Self::Nop(inner) => inner.cycles().max(),
+            Self::Or(inner) => inner.execute(device),
+            Self::Pop(inner) => inner.execute(device),
+            Self::Push(inner) => inner.execute(device),
+            Self::ResetBit(inner) => inner.execute(device),
+            Self::Return(inner) => inner.execute(device),
+            Self::Rotate(inner) => inner.execute(device),
+            Self::Subtract(inner) => inner.execute(device),
+            Self::SetCarryFlag(inner) => misc::set_carry_flag(inner, device),
+            Self::SetBit(inner) => inner.execute(device),
+            Self::ShiftLeft(inner) => inner.execute(device),
+            Self::ShiftRight(inner) => inner.execute(device),
+            Self::Stop(inner) => misc::stop(inner, device),
+            Self::Swap(inner) => inner.execute(device),
+            Self::Xor(inner) => inner.execute(device),
+            Self::Prefix(inner) => inner.cycles().max(),
         }
     }
 }

@@ -132,6 +132,28 @@ impl Memory {
         self.write_byte(address, low);
         self.write_byte(address + 1, high);
     }
+
+    pub fn stack_push(&mut self, stack_pointer: u16, value: u16) -> u16 {
+        let [high, low] = value.to_be_bytes();
+
+        self.write_byte(stack_pointer, high);
+        let stack_pointer = stack_pointer.wrapping_sub(1);
+
+        self.write_byte(stack_pointer, low);
+        stack_pointer.wrapping_sub(1)
+    }
+
+    pub fn stack_pop(&mut self, stack_pointer: u16) -> (u16, u16) {
+        let low = self.read_byte(stack_pointer);
+        let stack_pointer = stack_pointer.wrapping_add(1);
+
+        let high = self.read_byte(stack_pointer);
+
+        (
+            u16::from_be_bytes([high, low]),
+            stack_pointer.wrapping_add(1),
+        )
+    }
 }
 
 #[derive(Debug, thiserror::Error)]

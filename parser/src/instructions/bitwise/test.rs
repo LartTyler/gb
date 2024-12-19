@@ -1,6 +1,6 @@
 use gb_asm::{
     instructions::{
-        bitwise::test::{Source::*, *},
+        bitwise::test::{Target::*, *},
         Instruction,
     },
     Bit, Register,
@@ -9,7 +9,7 @@ use gb_asm::{
 pub fn test_register(position: Bit, register: Register) -> Instruction {
     Test {
         position,
-        source: Register(register),
+        target: Register(register),
     }
     .into()
 }
@@ -17,7 +17,7 @@ pub fn test_register(position: Bit, register: Register) -> Instruction {
 pub fn test_pointer_value(position: Bit) -> Instruction {
     Test {
         position,
-        source: PointerValue,
+        target: PointerValue,
     }
     .into()
 }

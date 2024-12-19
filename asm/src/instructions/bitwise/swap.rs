@@ -1,10 +1,11 @@
-use crate::{cycles, Info, Register};
-use std::fmt::Display;
+use super::test::Target::{self, *};
+use crate::{cycles, Info};
+use derive_more::derive::Display;
 
-#[derive(Debug, Copy, Clone)]
-pub enum Swap {
-    Register(Register),
-    PointerValue,
+#[derive(Debug, Copy, Clone, Display)]
+#[display("SWAP {target}")]
+pub struct Swap {
+    pub target: Target,
 }
 
 impl Info for Swap {
@@ -13,20 +14,9 @@ impl Info for Swap {
     }
 
     fn cycles(&self) -> crate::Cycles {
-        match self {
-            Self::Register(_) => cycles!(2),
-            Self::PointerValue => cycles!(4),
-        }
-    }
-}
-
-impl Display for Swap {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "SWAP ")?;
-
-        match self {
-            Self::Register(v) => write!(f, "{v}"),
-            Self::PointerValue => write!(f, "(HL)"),
+        match self.target {
+            Register(_) => cycles!(2),
+            PointerValue => cycles!(4),
         }
     }
 }

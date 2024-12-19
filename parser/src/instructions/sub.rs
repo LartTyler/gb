@@ -1,8 +1,6 @@
 use gb_asm::{
-    instructions::{
-        math::subtract::{Source::*, *},
-        Instruction,
-    },
+    instructions::{math::subtract::*, Instruction},
+    sources::ByteSource::{self, *},
     Register,
 };
 
@@ -30,6 +28,6 @@ pub fn subtract_constant_with_carry() -> Instruction {
     subtract(ConstantByte, true)
 }
 
-pub fn subtract(source: Source, with_carry: bool) -> Instruction {
+pub fn subtract(source: ByteSource, with_carry: bool) -> Instruction {
     Subtract { source, with_carry }.into()
 }

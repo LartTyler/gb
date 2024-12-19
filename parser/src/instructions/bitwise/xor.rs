@@ -1,16 +1,26 @@
 use gb_asm::{
     instructions::{bitwise::xor::*, Instruction},
+    sources::ByteSource::*,
     Register,
 };
 
 pub fn xor_register(register: Register) -> Instruction {
-    Xor::Register(register).into()
+    Xor {
+        source: Register(register),
+    }
+    .into()
 }
 
 pub fn xor_pointer_value() -> Instruction {
-    Xor::PointerValue.into()
+    Xor {
+        source: PointerValue,
+    }
+    .into()
 }
 
 pub fn xor_constant() -> Instruction {
-    Xor::ConstantByte.into()
+    Xor {
+        source: ConstantByte,
+    }
+    .into()
 }

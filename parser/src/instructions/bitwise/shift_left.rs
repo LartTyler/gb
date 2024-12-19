@@ -1,12 +1,21 @@
 use gb_asm::{
-    instructions::{bitwise::shift_left::*, Instruction},
+    instructions::{
+        bitwise::{shift_left::*, shift_right::Target::*},
+        Instruction,
+    },
     Register,
 };
 
 pub fn shift_left_register(register: Register) -> Instruction {
-    ShiftLeft::Register(register).into()
+    ShiftLeft {
+        target: Register(register),
+    }
+    .into()
 }
 
 pub fn shift_left_pointer_value() -> Instruction {
-    ShiftLeft::PointerValue.into()
+    ShiftLeft {
+        target: PointerValue,
+    }
+    .into()
 }

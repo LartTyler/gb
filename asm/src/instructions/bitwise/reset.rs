@@ -1,4 +1,5 @@
-use crate::{cycles, Bit, Cycles, Info, Register};
+use super::test::Target::{self, *};
+use crate::{cycles, Bit, Cycles, Info};
 use derive_more::derive::Display;
 
 #[derive(Debug, Copy, Clone, Display)]
@@ -15,16 +16,8 @@ impl Info for ResetBit {
 
     fn cycles(&self) -> Cycles {
         match self.target {
-            Target::Register(_) => cycles!(2),
-            Target::PointerValue => cycles!(4),
+            Register(_) => cycles!(2),
+            PointerValue => cycles!(4),
         }
     }
-}
-
-#[derive(Debug, Copy, Clone, Display)]
-pub enum Target {
-    #[display("{_0}")]
-    Register(Register),
-    #[display("(HL)")]
-    PointerValue,
 }

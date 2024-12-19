@@ -66,3 +66,8 @@ impl LoadValue for ByteSource {
         }
     }
 }
+
+pub trait WriteValue {
+    type Value;
+    fn write_value(&self, device: &mut Device, value: Self::Value);
+}

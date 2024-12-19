@@ -33,6 +33,15 @@ pub enum Target {
     ConstantAddress(Option<Condition>),
 }
 
+impl Target {
+    pub fn get_condition(&self) -> Option<&Condition> {
+        match self {
+            Self::ConstantAddress(cond) => cond.as_ref(),
+            _ => None,
+        }
+    }
+}
+
 impl Display for Target {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {

@@ -1,5 +1,5 @@
 use gb_asm::{
-    instructions::{bitwise::reset::Target::*, bitwise::set::*, Instruction},
+    instructions::{bitwise::set::*, bitwise::test::Target::*, Instruction},
     Bit, Register,
 };
 

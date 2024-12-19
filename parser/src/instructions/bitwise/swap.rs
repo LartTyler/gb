@@ -1,12 +1,21 @@
 use gb_asm::{
-    instructions::{bitwise::swap::*, Instruction},
+    instructions::{
+        bitwise::{swap::*, test::Target::*},
+        Instruction,
+    },
     Register,
 };
 
 pub fn swap_register(register: Register) -> Instruction {
-    Swap::Register(register).into()
+    Swap {
+        target: Register(register),
+    }
+    .into()
 }
 
 pub fn swap_pointer_value() -> Instruction {
-    Swap::PointerValue.into()
+    Swap {
+        target: PointerValue,
+    }
+    .into()
 }

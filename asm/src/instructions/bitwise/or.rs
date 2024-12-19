@@ -1,37 +1,28 @@
-use crate::{cycles, Cycles, Info, Register};
-use std::fmt::Display;
+use crate::{
+    cycles,
+    sources::ByteSource::{self, *},
+    Cycles, Info,
+};
+use derive_more::derive::Display;
 
-#[derive(Debug, Copy, Clone)]
-pub enum Or {
-    Register(Register),
-    PointerValue,
-    ConstantByte,
-}
-
-impl Display for Or {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "OR ")?;
-
-        match self {
-            Self::Register(v) => write!(f, "{v}"),
-            Self::PointerValue => write!(f, "(HL)"),
-            Self::ConstantByte => write!(f, "d8"),
-        }
-    }
+#[derive(Debug, Copy, Clone, Display)]
+#[display("OR {source}")]
+pub struct Or {
+    pub source: ByteSource,
 }
 
 impl Info for Or {
     fn bytes(&self) -> u8 {
-        match self {
-            Self::Register(_) | Self::PointerValue => 1,
-            Self::ConstantByte => 2,
+        match self.source {
+            Register(_) | PointerValue => 1,
+            ConstantByte => 2,
         }
     }
 
     fn cycles(&self) -> Cycles {
-        match self {
-            Self::Register(_) => cycles!(1),
-            Self::ConstantByte | Self::PointerValue => cycles!(2),
+        match self.source {
+            Register(_) => cycles!(1),
+            ConstantByte | PointerValue => cycles!(2),
         }
     }
 }

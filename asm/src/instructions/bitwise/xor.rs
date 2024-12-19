@@ -1,37 +1,28 @@
-use crate::{cycles, Cycles, Info, Register};
-use std::fmt::Display;
+use crate::{
+    cycles,
+    sources::ByteSource::{self, *},
+    Cycles, Info,
+};
+use derive_more::derive::Display;
 
-#[derive(Debug, Copy, Clone)]
-pub enum Xor {
-    Register(Register),
-    PointerValue,
-    ConstantByte,
-}
-
-impl Display for Xor {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "XOR ")?;
-
-        match self {
-            Self::Register(v) => write!(f, "{v}"),
-            Self::PointerValue => write!(f, "(HL)"),
-            Self::ConstantByte => write!(f, "d8"),
-        }
-    }
+#[derive(Debug, Copy, Clone, Display)]
+#[display("XOR {source}")]
+pub struct Xor {
+    pub source: ByteSource,
 }
 
 impl Info for Xor {
     fn bytes(&self) -> u8 {
-        match self {
-            Self::Register(_) | Self::PointerValue => 1,
-            Self::ConstantByte => 2,
+        match self.source {
+            Register(_) | PointerValue => 1,
+            ConstantByte => 2,
         }
     }
 
     fn cycles(&self) -> Cycles {
-        match self {
-            Self::Register(_) => cycles!(1),
-            Self::PointerValue | Self::ConstantByte => cycles!(2),
+        match self.source {
+            Register(_) => cycles!(1),
+            PointerValue | ConstantByte => cycles!(2),
         }
     }
 }

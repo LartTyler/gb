@@ -1,10 +1,4 @@
-use gb_asm::{
-    instructions::misc::{
-        ComplementAccumulator, ComplementCarryFlag, DecimalAdjustAccumulator, DisableInterrupts,
-        EnableInterrupts, Halt,
-    },
-    Flag, Info,
-};
+use gb_asm::{instructions::misc::*, Flag, Info};
 use gb_hardware::Device;
 
 pub fn complement_carry_flag(ccf: &ComplementCarryFlag, Device { cpu, .. }: &mut Device) -> u8 {
@@ -68,5 +62,17 @@ pub fn enable_interrupts(ei: &EnableInterrupts, Device { cpu, .. }: &mut Device)
 
 pub fn halt(_halt: &Halt, _device: &mut Device) -> u8 {
     // See https://rgbds.gbdev.io/docs/v0.8.0/gbz80.7#HALT
+    todo!()
+}
+
+pub fn set_carry_flag(scf: &SetCarryFlag, Device { cpu, .. }: &mut Device) -> u8 {
+    cpu.set(Flag::Subtract, false);
+    cpu.set(Flag::HalfCarry, false);
+    cpu.set(Flag::Carry, true);
+
+    scf.cycles().max()
+}
+
+pub fn stop(_stop: &Stop, _device: &mut Device) -> u8 {
     todo!()
 }

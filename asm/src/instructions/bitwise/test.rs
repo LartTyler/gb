@@ -1,11 +1,11 @@
-use crate::{Bit, Cycles, Info, Register};
+use crate::{cycles, Bit, Cycles, Info, Register};
 use derive_more::derive::Display;
 
 #[derive(Debug, Copy, Clone, Display)]
-#[display("BIT {position}, {source}")]
+#[display("BIT {position}, {target}")]
 pub struct Test {
     pub position: Bit,
-    pub source: Source,
+    pub target: Target,
 }
 
 impl Info for Test {
@@ -14,17 +14,17 @@ impl Info for Test {
     }
 
     fn cycles(&self) -> Cycles {
-        use Source::*;
+        use Target::*;
 
-        match self.source {
-            PointerValue => Cycles::Fixed(3),
-            Register(_) => Cycles::Fixed(2),
+        match self.target {
+            PointerValue => cycles!(3),
+            Register(_) => cycles!(2),
         }
     }
 }
 
 #[derive(Debug, Copy, Clone, Display)]
-pub enum Source {
+pub enum Target {
     #[display("(HL)")]
     PointerValue,
 

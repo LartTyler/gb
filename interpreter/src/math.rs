@@ -45,7 +45,7 @@ pub trait GbAdd<Rhs = Self> {
 
 impl<T> GbAdd for T
 where
-    T: Operand<Output = T> + Copy + Default,
+    T: Operand + Copy + Default,
 {
     type Output = Self;
 
@@ -78,7 +78,7 @@ pub trait GbSub<Rhs = Self> {
 
 impl<T> GbSub for T
 where
-    T: Operand<Output = T> + Copy + Default,
+    T: Operand + Copy + Default,
 {
     type Output = Self;
 
@@ -102,26 +102,54 @@ where
     }
 }
 
-pub trait Operand<Rhs = Self> {
-    type Output;
-
-    fn overflowing_add(self, rhs: Rhs) -> (Self::Output, bool);
-    fn overflowing_sub(self, rhs: Rhs) -> (Self::Output, bool);
+pub trait Operand<Rhs = Self>
+where
+    Self: Sized,
+{
+    fn overflowing_add(self, rhs: Rhs) -> (Self, bool);
+    fn overflowing_sub(self, rhs: Rhs) -> (Self, bool);
+    fn carrying_shl(self, rhs: u32, carry: bool) -> (Self, bool);
+    fn carrying_shr(self, rhs: u32, carry: bool) -> (Self, bool);
     fn is_half_carry_add(&self, rhs: Rhs) -> bool;
     fn is_half_carry_sub(&self, rhs: Rhs) -> bool;
-    fn get_carry_value() -> Self::Output;
     fn is_zero(&self) -> bool;
+    fn get_carry_value() -> Self;
+    fn get_bits() -> Self;
+}
+
+macro_rules! carrying_fns {
+    () => {
+        fn carrying_shl(self, rhs: u32, carry: bool) -> (Self, bool) {
+            let (mut result, new_carry) = self.overflowing_shl(rhs);
+
+            if carry {
+                result |= 1;
+            }
+
+            (result, new_carry)
+        }
+
+        fn carrying_shr(self, rhs: u32, carry: bool) -> (Self, bool) {
+            let (mut result, new_carry) = self.overflowing_shr(rhs);
+
+            if carry {
+                result |= 1 << (Self::BITS - 1);
+            }
+
+            (result, new_carry)
+        }
+    };
 }
 
 impl Operand for u8 {
-    type Output = Self;
+    carrying_fns!();
 
-    fn overflowing_add(self, rhs: Self) -> (Self::Output, bool) {
-        u8::overflowing_add(self, rhs)
+    fn overflowing_add(self, rhs: Self) -> (Self, bool) {
+        Self::overflowing_add(self, rhs)
     }
 
-    fn overflowing_sub(self, rhs: Self) -> (Self::Output, bool) {
-        u8::overflowing_sub(self, rhs)
+    fn overflowing_sub(self, rhs: Self) -> (Self, bool) {
+        Self::overflowing_sub(self, rhs)
     }
 
     fn is_half_carry_add(&self, rhs: Self) -> bool {
@@ -135,8 +163,12 @@ impl Operand for u8 {
         (self & 0xF) > (rhs & 0xF)
     }
 
-    fn get_carry_value() -> Self::Output {
+    fn get_carry_value() -> Self {
         1
+    }
+
+    fn get_bits() -> Self {
+        Self::BITS as Self
     }
 
     fn is_zero(&self) -> bool {
@@ -145,14 +177,14 @@ impl Operand for u8 {
 }
 
 impl Operand for u16 {
-    type Output = Self;
+    carrying_fns!();
 
-    fn overflowing_add(self, rhs: Self) -> (Self::Output, bool) {
-        u16::overflowing_add(self, rhs)
+    fn overflowing_add(self, rhs: Self) -> (Self, bool) {
+        Self::overflowing_add(self, rhs)
     }
 
-    fn overflowing_sub(self, rhs: Self) -> (Self::Output, bool) {
-        u16::overflowing_sub(self, rhs)
+    fn overflowing_sub(self, rhs: Self) -> (Self, bool) {
+        Self::overflowing_sub(self, rhs)
     }
 
     fn is_half_carry_add(&self, rhs: Self) -> bool {
@@ -177,8 +209,12 @@ impl Operand for u16 {
         lhs > rhs
     }
 
-    fn get_carry_value() -> Self::Output {
+    fn get_carry_value() -> Self {
         1
+    }
+
+    fn get_bits() -> Self {
+        Self::BITS as Self
     }
 
     fn is_zero(&self) -> bool {

@@ -1,3 +1,4 @@
+use super::Instruction;
 use crate::{cycles, with_info_trait, with_simple_info, Cycles, Info, Pair, Register};
 use derive_more::derive::{Display, From};
 
@@ -6,8 +7,6 @@ pub use to_register::*;
 
 pub mod to_accumulator;
 pub use to_accumulator::*;
-
-use super::Instruction;
 
 with_info_trait!(
     #[derive(Debug, Copy, Clone, Display, From)]
@@ -18,7 +17,6 @@ with_info_trait!(
         /// LD r8, (HL)
         ToRegister(ToRegister),
 
-        /// LD A, r8
         /// LD A, (r16)
         /// LD A, (HL+)
         /// LD A, (HL-)
@@ -36,9 +34,11 @@ with_info_trait!(
         ToPairPointer(ToPairPointer),
 
         /// LD (HL), d8
+        /// LD (HL), r8
         ToHLPointer(ToHLPointer),
 
         /// LD SP, HL
+        /// LD SP, d16
         ToStackPointer(ToStackPointer),
 
         /// LD ($FF00+C), A
@@ -61,6 +61,15 @@ pub enum Action {
     Increment,
     #[display("-")]
     Decrement,
+}
+
+impl Action {
+    pub fn apply(&self, value: u16) -> u16 {
+        match self {
+            Self::Increment => value.wrapping_add(1),
+            Self::Decrement => value.wrapping_sub(1),
+        }
+    }
 }
 
 #[derive(Debug, Copy, Clone, Display)]

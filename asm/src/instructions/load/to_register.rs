@@ -1,18 +1,17 @@
-use crate::{cycles, instructions::Instruction, Cycles, Info, Register};
-use derive_more::derive::Display;
-
 use super::Load;
+use crate::{cycles, instructions::Instruction, sources::ByteSource, Cycles, Info, Register};
+use derive_more::derive::Display;
 
 #[derive(Debug, Copy, Clone, Display)]
 #[display("{target}, {source}")]
 pub struct ToRegister {
     pub target: Register,
-    pub source: ToRegisterSource,
+    pub source: ByteSource,
 }
 
 impl Info for ToRegister {
     fn bytes(&self) -> u8 {
-        use ToRegisterSource::*;
+        use ByteSource::*;
 
         match self.source {
             Register(_) | PointerValue => 1,
@@ -21,7 +20,7 @@ impl Info for ToRegister {
     }
 
     fn cycles(&self) -> Cycles {
-        use ToRegisterSource::*;
+        use ByteSource::*;
 
         match self.source {
             Register(_) => cycles!(1),
@@ -34,14 +33,4 @@ impl From<ToRegister> for Instruction {
     fn from(value: ToRegister) -> Self {
         Load::from(value).into()
     }
-}
-
-#[derive(Debug, Copy, Clone, Display)]
-pub enum ToRegisterSource {
-    #[display("{_0}")]
-    Register(Register),
-    #[display("d8")]
-    ConstantByte,
-    #[display("(HL)")]
-    PointerValue,
 }

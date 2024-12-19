@@ -1,4 +1,4 @@
-use super::reset::Target;
+use super::test::Target;
 use crate::{cycles, Bit, Cycles, Info};
 use derive_more::derive::Display;
 
