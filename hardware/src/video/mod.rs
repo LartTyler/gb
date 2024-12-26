@@ -9,6 +9,8 @@ pub struct Video {
     pub current_line: u8,
     pub current_line_compare: u8,
     pub status_register: u8,
+    pub has_vblank_interrupt: bool,
+    pub has_stat_interrupt: bool,
     mode: Mode,
     total_dots: u16,
     remaining_dots: u16,
@@ -32,15 +34,24 @@ impl Video {
             status_register: mode as u8,
             speed_multiplier: 1,
             remaining_dots: total_dots,
+            has_stat_interrupt: false,
+            has_vblank_interrupt: false,
             total_dots,
             mode,
         };
 
-        inst.update_y_compare_bit();
+        // The LYC status flag always starts `true` since the current line and compare registers
+        // start at zero.
+        inst.set_flag(Flag::LycStatus, true);
+
         inst
     }
 
     pub fn process(&mut self, delta: u8) {
+        // A VBlank interrupt is only requested on the tick that we enter vblank, and should be
+        // cleared on the next one.
+        self.has_vblank_interrupt = false;
+
         let delta = delta as u16 * self.speed_multiplier;
 
         // Because we only tick the video device after each instruction, we might end up with a
@@ -59,9 +70,20 @@ impl Video {
             self.mode = self.mode.next(self.current_line);
             self.total_dots = self.mode.get_duration(self.total_dots);
             self.remaining_dots = self.total_dots - overflow;
+
+            self.has_vblank_interrupt = matches!(self.mode, Mode::VerticalBlank);
+            self.has_stat_interrupt = match self.mode {
+                Mode::VerticalBlank => self.get_flag(Flag::VblankInterrupt),
+                Mode::HorizontalBlank => self.get_flag(Flag::HblankInterrupt),
+                Mode::OamScan => self.get_flag(Flag::OamInterrupt),
+                _ => false,
+            };
         }
 
-        self.update_y_compare_bit();
+        self.set_flag(
+            Flag::LycStatus,
+            self.current_line == self.current_line_compare,
+        );
     }
 
     pub fn write_status_register(&mut self, value: u8) {
@@ -69,15 +91,28 @@ impl Video {
         self.status_register = value & 0b1111_1000;
     }
 
-    fn update_y_compare_bit(&mut self) {
-        const FLAG_LY_EQ_LYC: u8 = 0b0000_0100;
-
-        if self.current_line == self.current_line_compare {
-            self.status_register |= FLAG_LY_EQ_LYC;
+    fn set_flag(&mut self, flag: Flag, value: bool) {
+        if value {
+            self.status_register |= flag as u8;
         } else {
-            self.status_register &= !FLAG_LY_EQ_LYC;
+            self.status_register &= !(flag as u8);
         }
     }
+
+    fn get_flag(&self, flag: Flag) -> bool {
+        self.status_register & (flag as u8) > 0
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+#[repr(u8)]
+pub enum Flag {
+    CurrentMode = 0b0000_0011,
+    LycStatus = 0b0000_0100,
+    HblankInterrupt = 0b0000_1000,
+    VblankInterrupt = 0b0001_0000,
+    OamInterrupt = 0b0010_0000,
+    LycInterrupt = 0b0100_0000,
 }
 
 #[derive(Debug, Copy, Clone)]

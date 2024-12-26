@@ -50,6 +50,7 @@ pub struct Device {
     pub memory: Memory,
     pub video: Video,
     pub interrupts_pending: HashSet<Interrupt>,
+    previous_stat_value: bool,
 }
 
 impl Device {
@@ -68,12 +69,37 @@ impl Device {
             cpu: Cpu::new(device_mode),
             video: Video::new(device_mode),
             interrupts_pending: HashSet::new(),
+            previous_stat_value: false,
             memory,
         })
     }
 
     pub fn is_interrupt_enabled(&self, interrupt: Interrupt) -> bool {
         self.cpu.interrupts_enabled && (self.memory.interrupts_enabled & interrupt.get_mask() > 0)
+    }
+
+    pub fn process(&mut self, delta: u8) {
+        // PPU cycles (also referred to as "dots") are actually t-cycles (m_cycle * 4)
+        self.video.process(delta * 4);
+
+        if self.video.has_vblank_interrupt {
+            self.interrupts_pending.insert(Interrupt::VerticalBlank);
+        } else {
+            self.interrupts_pending.remove(&Interrupt::VerticalBlank);
+        }
+
+        // STAT interrupts only trigger on the rising edge, meaning that two sequential STAT
+        // interrupts (e.g. when going from VBlank to HBlank) do not actually trigger a STAT
+        // interrupt. To emulate this behavior, we store the last-known value of the STAT flag from
+        // the video device, and only queue a STAT interrupt if we've gone from `false` (low
+        // signal) to `true` (high signal).
+        if self.video.has_stat_interrupt && !self.previous_stat_value {
+            self.interrupts_pending.insert(Interrupt::Stat);
+        } else {
+            self.interrupts_pending.remove(&Interrupt::Stat);
+        }
+
+        self.previous_stat_value = self.video.has_stat_interrupt;
     }
 
     pub fn get_next_interrupt(&mut self) -> Option<Interrupt> {

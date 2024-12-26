@@ -57,7 +57,7 @@ impl Interpreter {
             *pc = pc.wrapping_add((instr.bytes() - 1) as u16);
         }
 
-        device.video.process(cycles * 4);
+        device.process(cycles);
     }
 }
 
