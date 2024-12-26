@@ -18,7 +18,7 @@ impl Execute for Add {
             Self::ToStackPointer => {
                 // It's important that we immediately cast the byte to an i8, otherwise the
                 // following cast to a u16 won't saturate during expansion.
-                let rhs = device.memory.read_byte(device.cpu.program_counter) as i8;
+                let rhs = device.read_byte(device.cpu.program_counter) as i8;
                 let result = device.cpu.stack_pointer.add(rhs as u16);
                 result.copy_to_cpu_flags(&mut device.cpu);
             }

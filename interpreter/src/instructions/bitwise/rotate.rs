@@ -46,11 +46,11 @@ impl Execute for Rotate {
 impl LoadValue for Target {
     type Value = u8;
 
-    fn load_value(&self, Device { cpu, memory }: &Device) -> Self::Value {
+    fn load_value(&self, device: &Device) -> Self::Value {
         match self {
-            Self::Accumulator => cpu.a,
-            Self::Register(r) => cpu.get(r),
-            Self::PointerValue => memory.read_byte(cpu.get(Pair::HL)),
+            Self::Accumulator => device.cpu.a,
+            Self::Register(r) => device.cpu.get(r),
+            Self::PointerValue => device.read_byte(device.cpu.get(Pair::HL)),
         }
     }
 }
@@ -58,11 +58,11 @@ impl LoadValue for Target {
 impl WriteValue for Target {
     type Value = u8;
 
-    fn write_value(&self, Device { cpu, memory }: &mut Device, value: Self::Value) {
+    fn write_value(&self, device: &mut Device, value: Self::Value) {
         match self {
-            Self::Accumulator => cpu.a = value,
-            Self::Register(r) => cpu.set(r, value),
-            Self::PointerValue => memory.write_byte(cpu.get(Pair::HL), value),
+            Self::Accumulator => device.cpu.a = value,
+            Self::Register(r) => device.cpu.set(r, value),
+            Self::PointerValue => device.write_byte(device.cpu.get(Pair::HL), value),
         }
     }
 }

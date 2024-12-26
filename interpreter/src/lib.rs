@@ -5,11 +5,24 @@ use gb_parser::{parse, parse_prefixed};
 pub mod instructions;
 pub mod math;
 
+#[derive(Debug, Clone, Default)]
 pub struct Interpreter;
 
 impl Interpreter {
     pub fn step(&mut self, device: &mut Device) {
-        let opcode = device.memory.read_byte(device.cpu.program_counter);
+        if let Some(interrupt) = device.get_next_interrupt() {
+            if device.is_interrupt_enabled(interrupt) {
+                device.stack_push(device.cpu.program_counter);
+                device.cpu.interrupts_enabled = false;
+                device.cpu.program_counter = interrupt.get_address();
+
+                // According to Pandocs, transitioning to an interrupt handler takes 5 cycles.
+                device.cpu.cycle_counter = device.cpu.cycle_counter.wrapping_add(5);
+                device.video.process(5 * 4);
+            }
+        }
+
+        let opcode = device.read_byte(device.cpu.program_counter);
         let instr = parse(opcode).unwrap_or_else(|| {
             panic!(
                 "Unimplemented opcode {opcode:#04X} at ${:04X}",
@@ -20,7 +33,7 @@ impl Interpreter {
         device.cpu.program_counter += 1;
 
         let instr = if instr.is_prefix() {
-            let opcode = device.memory.read_byte(device.cpu.program_counter);
+            let opcode = device.read_byte(device.cpu.program_counter);
             let instr = parse_prefixed(opcode);
             device.cpu.program_counter += 1;
 
@@ -43,6 +56,8 @@ impl Interpreter {
         if stored_pc == *pc {
             *pc = pc.wrapping_add((instr.bytes() - 1) as u16);
         }
+
+        device.video.process(cycles * 4);
     }
 }
 
@@ -58,11 +73,11 @@ pub trait LoadValue {
 impl LoadValue for ByteSource {
     type Value = u8;
 
-    fn load_value(&self, Device { cpu, memory }: &Device) -> Self::Value {
+    fn load_value(&self, device: &Device) -> Self::Value {
         match self {
-            Self::Register(r) => cpu.get(r),
-            Self::PointerValue => memory.read_byte(cpu.get(Pair::HL)),
-            Self::ConstantByte => memory.read_byte(cpu.program_counter),
+            Self::Register(r) => device.cpu.get(r),
+            Self::PointerValue => device.read_byte(device.cpu.get(Pair::HL)),
+            Self::ConstantByte => device.read_byte(device.cpu.program_counter),
         }
     }
 }

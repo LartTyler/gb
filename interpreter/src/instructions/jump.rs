@@ -23,18 +23,18 @@ impl Execute for Jump {
 impl LoadValue for Target {
     type Value = u16;
 
-    fn load_value(&self, Device { cpu, memory }: &Device) -> Self::Value {
+    fn load_value(&self, device: &Device) -> Self::Value {
         match self {
-            Pointer => cpu.get(Pair::HL),
-            ConstantAddress(_) => memory.read_word(cpu.program_counter),
+            Pointer => device.cpu.get(Pair::HL),
+            ConstantAddress(_) => device.read_word(device.cpu.program_counter),
         }
     }
 }
 
 impl Execute for JumpRelative {
-    fn execute(&self, Device { cpu, memory }: &mut Device) -> u8 {
+    fn execute(&self, device: &mut Device) -> u8 {
         if let Some(cond) = self.condition {
-            if cond.test(cpu.flags) {
+            if cond.test(device.cpu.flags) {
                 return self.cycles().min();
             }
         }
@@ -42,14 +42,15 @@ impl Execute for JumpRelative {
         // The constant byte used by JR is a two's complement signed value. Since we need to expand
         // the value to a u16 in order to add it to PC, we need to cast it to an i8 when before we
         // use it, otherwise it won't saturate properly when expanding to a u16.
-        let offset = memory.read_byte(cpu.program_counter) as i8;
+        let offset = device.read_byte(device.cpu.program_counter) as i8;
 
         // We shift PC one byte forward during execution in order to simplify reading constant
         // values for instructions that need it. In this case, however, JR offsets PC starting at
         // the position _after_ the full instruction (including it's constant value). So, we need
         // to add one before adding our offset to ensure we end up in the correct place.
         // See https://rgbds.gbdev.io/docs/v0.8.0/gbz80.7#JR_n16
-        cpu.program_counter = cpu
+        device.cpu.program_counter = device
+            .cpu
             .program_counter
             .wrapping_add(1)
             .wrapping_add(offset as u16);

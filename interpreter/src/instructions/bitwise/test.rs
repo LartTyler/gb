@@ -24,10 +24,10 @@ impl Execute for Test {
 impl LoadValue for Target {
     type Value = u8;
 
-    fn load_value(&self, Device { cpu, memory }: &Device) -> Self::Value {
+    fn load_value(&self, device: &Device) -> Self::Value {
         match self {
-            Register(r) => cpu.get(r),
-            PointerValue => memory.read_byte(cpu.get(Pair::HL)),
+            Register(r) => device.cpu.get(r),
+            PointerValue => device.read_byte(device.cpu.get(Pair::HL)),
         }
     }
 }
@@ -35,10 +35,10 @@ impl LoadValue for Target {
 impl WriteValue for Target {
     type Value = u8;
 
-    fn write_value(&self, Device { cpu, memory }: &mut Device, value: Self::Value) {
+    fn write_value(&self, device: &mut Device, value: Self::Value) {
         match self {
-            Register(r) => cpu.set(r, value),
-            PointerValue => memory.write_byte(cpu.get(Pair::HL), value),
+            Register(r) => device.cpu.set(r, value),
+            PointerValue => device.write_byte(device.cpu.get(Pair::HL), value),
         }
     }
 }
