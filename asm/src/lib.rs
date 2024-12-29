@@ -60,7 +60,8 @@ impl Pair {
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Display)]
+#[repr(u8)]
 pub enum Flag {
     Carry = 0b0001_0000,
     HalfCarry = 0b0010_0000,
@@ -72,6 +73,10 @@ impl Flag {
     #[inline]
     fn mask(&self) -> u8 {
         *self as u8
+    }
+
+    pub fn test(&self, value: u8) -> bool {
+        value & self.mask() > 0
     }
 }
 
