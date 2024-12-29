@@ -5,8 +5,14 @@ use gb_parser::{parse, parse_prefixed};
 pub mod instructions;
 pub mod math;
 
+#[cfg(feature = "inspect")]
+pub mod inspector;
+
 #[derive(Debug, Clone, Default)]
-pub struct Interpreter;
+pub struct Interpreter {
+    #[cfg(feature = "inspect")]
+    pub(crate) inspector: inspector::Inspector,
+}
 
 impl Interpreter {
     pub fn step(&mut self, device: &mut Device) {
@@ -28,6 +34,12 @@ impl Interpreter {
                 "Unimplemented opcode {opcode:#04X} at ${:04X}",
                 device.cpu.program_counter
             )
+        });
+
+        #[cfg(feature = "inspect")]
+        self.inspector.send(inspector::Message::Instruction {
+            pc: device.cpu.program_counter,
+            instruction: instr,
         });
 
         device.cpu.program_counter += 1;
@@ -58,6 +70,9 @@ impl Interpreter {
         }
 
         device.process(cycles);
+
+        #[cfg(feature = "inspect")]
+        self.inspector.send(inspector::Message::Step);
     }
 }
 

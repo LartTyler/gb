@@ -7,3 +7,6 @@ edition = "2021"
 gb_hardware = { path = "../hardware" }
 gb_parser = { path = "../parser" }
 gb_asm = { path = "../asm" }
+
+[features]
+inspect = []
