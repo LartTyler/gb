@@ -6,12 +6,12 @@ pub mod instructions;
 pub mod math;
 
 #[cfg(feature = "inspect")]
-pub mod inspector;
+pub mod inspect;
 
 #[derive(Debug, Clone, Default)]
 pub struct Interpreter {
     #[cfg(feature = "inspect")]
-    pub(crate) inspector: inspector::Inspector,
+    pub(crate) inspector: inspect::Inspector,
 }
 
 impl Interpreter {
@@ -37,7 +37,7 @@ impl Interpreter {
         });
 
         #[cfg(feature = "inspect")]
-        self.inspector.send(inspector::Message::Instruction {
+        self.inspector.send(inspect::Message::Instruction {
             pc: device.cpu.program_counter,
             instruction: instr,
         });
@@ -72,7 +72,7 @@ impl Interpreter {
         device.process(cycles);
 
         #[cfg(feature = "inspect")]
-        self.inspector.send(inspector::Message::Step);
+        self.inspector.send(inspect::Message::Step);
     }
 }
 
