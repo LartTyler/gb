@@ -6,7 +6,10 @@ use gb_asm::{
     },
     Info,
 };
-use gb_hardware::Device;
+use gb_hardware::{
+    util::{bytes_to_word, word_to_bytes},
+    Device,
+};
 
 impl Execute for Pop {
     fn execute(&self, device: &mut Device) -> u8 {
@@ -14,7 +17,7 @@ impl Execute for Pop {
 
         match self.target {
             AccumulatorAndFlags => {
-                let [high, low] = value.to_be_bytes();
+                let [low, high] = word_to_bytes(value);
 
                 device.cpu.a = high;
                 device.cpu.flags = low;
@@ -29,7 +32,7 @@ impl Execute for Pop {
 impl Execute for Push {
     fn execute(&self, device: &mut Device) -> u8 {
         let value = match self.source {
-            AccumulatorAndFlags => u16::from_be_bytes([device.cpu.a, device.cpu.flags]),
+            AccumulatorAndFlags => bytes_to_word(device.cpu.a, device.cpu.flags),
             Pair(p) => device.cpu.get(p),
         };
 

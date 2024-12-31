@@ -1,4 +1,4 @@
-use crate::{memory::map::EXTERNAL_RAM_SIZE, DeviceMode};
+use crate::{memory::map::EXTERNAL_RAM_SIZE, util::bytes_to_word, DeviceMode};
 use map::*;
 use mbc::{Controller, ControllerAccess};
 use std::fmt::Debug;
@@ -164,7 +164,7 @@ pub fn read_licensee_id(rom: &[u8]) -> u16 {
     match rom[OFFSET_OLD_LICENSEE] {
         0x33 => {
             check_offset!(rom[OFFSET_NEW_LICENSEE_LOW]);
-            u16::from_be_bytes([rom[OFFSET_NEW_LICENSEE_HIGH], rom[OFFSET_NEW_LICENSEE_LOW]])
+            bytes_to_word(rom[OFFSET_NEW_LICENSEE_HIGH], rom[OFFSET_NEW_LICENSEE_LOW])
         }
         x => x as u16,
     }

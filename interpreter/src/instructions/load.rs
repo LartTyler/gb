@@ -1,6 +1,6 @@
 use crate::{Execute, LoadValue};
 use gb_asm::{instructions::load::*, Info, Pair};
-use gb_hardware::Device;
+use gb_hardware::{util::word_to_bytes, Device};
 
 impl Execute for Load {
     fn execute(&self, device: &mut Device) -> u8 {
@@ -53,9 +53,9 @@ impl Execute for Load {
                         device.write_byte(pointer, device.cpu.a);
                     }
                     ToConstantPointerSource::StackPointer => {
-                        let [high, low] = device.cpu.stack_pointer.to_be_bytes();
-                        device.write_byte(pointer, high);
-                        device.write_byte(pointer + 1, low);
+                        let [low, high] = word_to_bytes(device.cpu.stack_pointer);
+                        device.write_byte(pointer, low);
+                        device.write_byte(pointer + 1, high);
                     }
                 };
             }

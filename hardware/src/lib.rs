@@ -1,6 +1,7 @@
 use cpu::Cpu;
 use memory::{map::*, Memory, MemoryError};
 use std::{collections::HashSet, fs::File, io::Read, path::Path};
+use util::{bytes_to_word, word_to_bytes};
 use video::{Video, REGISTER_LCD_STATUS, REGISTER_LCD_Y_COMPARE, REGISTER_LCD_Y_COORD};
 
 pub mod cpu;
@@ -160,10 +161,10 @@ impl Device {
     }
 
     pub fn read_word(&self, address: u16) -> u16 {
-        let high = self.read_byte(address);
-        let low = self.read_byte(address.wrapping_add(1));
+        let low = self.read_byte(address);
+        let high = self.read_byte(address.wrapping_add(1));
 
-        u16::from_be_bytes([high, low])
+        bytes_to_word(high, low)
     }
 
     pub fn write_byte(&mut self, address: u16, value: u8) {
@@ -203,14 +204,14 @@ impl Device {
     }
 
     pub fn write_word(&mut self, address: u16, value: u16) {
-        let [high, low] = value.to_be_bytes();
+        let [low, high] = word_to_bytes(value);
 
         self.write_byte(address, low);
         self.write_byte(address.wrapping_add(1), high)
     }
 
     pub fn stack_push(&mut self, value: u16) {
-        let [high, low] = value.to_be_bytes();
+        let [low, high] = word_to_bytes(value);
         let stack_pointer = self.cpu.stack_pointer;
 
         self.write_byte(stack_pointer, high);
@@ -221,15 +222,15 @@ impl Device {
     }
 
     pub fn stack_pop(&mut self) -> u16 {
-        let stack_pointer = self.cpu.stack_pointer;
-
+        let stack_pointer = self.cpu.stack_pointer.wrapping_add(1);
         let low = self.read_byte(stack_pointer);
+
         let stack_pointer = stack_pointer.wrapping_add(1);
-
         let high = self.read_byte(stack_pointer);
-        self.cpu.stack_pointer = stack_pointer.wrapping_add(1);
 
-        u16::from_be_bytes([high, low])
+        self.cpu.stack_pointer = stack_pointer;
+
+        bytes_to_word(high, low)
     }
 }
 

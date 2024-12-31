@@ -11,13 +11,15 @@ pub struct Video {
     pub status_register: u8,
     pub has_vblank_interrupt: bool,
     pub has_stat_interrupt: bool,
-    mode: Mode,
-    total_dots: u16,
-    remaining_dots: u16,
-    speed_multiplier: u16,
+    pub mode: Mode,
+    pub total_dots: u16,
+    pub remaining_dots: u16,
+    pub speed_multiplier: u16,
 }
 
 impl Video {
+    const LINE_COUNT: u8 = 144;
+
     pub fn new(device_mode: DeviceMode) -> Self {
         let mode = Mode::OamScan;
         let total_dots = mode.get_duration(0);
@@ -59,12 +61,16 @@ impl Video {
         // `overflow` will be non-zero, telling us we need to subtract it from the next mode's
         // remaining_dots when we switch to it.
         let overflow = delta.saturating_sub(self.remaining_dots);
-        let new_dots = self.remaining_dots.saturating_sub(delta);
+        self.remaining_dots = self.remaining_dots.saturating_sub(delta);
 
-        if new_dots == 0 {
+        if self.remaining_dots == 0 {
             // Advance the line counter by 1 every time we complete a vertical or horizontal blank.
             if matches!(self.mode, Mode::HorizontalBlank | Mode::VerticalBlank) {
                 self.current_line += 1;
+
+                if self.current_line > Self::LINE_COUNT {
+                    self.current_line = 0;
+                }
             }
 
             self.mode = self.mode.next(self.current_line);
@@ -129,19 +135,14 @@ impl Mode {
     const VBLANK_DOTS: u16 = 4560;
     const HBLANK_MAX_DOTS: u16 = 204;
     const DRAW_MIN_DOTS: u16 = 172;
-    const LINE_COUNT: u8 = 154;
-    const FIRST_VBLANK_LINE: u8 = 144;
 
     pub fn next(&self, current_line: u8) -> Self {
         match self {
             Self::OamScan => Self::Draw,
             Self::Draw => Self::HorizontalBlank,
-            Self::HorizontalBlank if current_line >= Self::FIRST_VBLANK_LINE => Self::OamScan,
+            Self::HorizontalBlank if current_line < Video::LINE_COUNT => Self::OamScan,
             Self::HorizontalBlank => Self::VerticalBlank,
-
-            // Vertical blanking continues for several lines past the "end" of the display.
-            Self::VerticalBlank if current_line >= Self::LINE_COUNT => Self::OamScan,
-            Self::VerticalBlank => Self::VerticalBlank,
+            Self::VerticalBlank => Self::OamScan,
         }
     }
 
