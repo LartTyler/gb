@@ -258,3 +258,24 @@ impl Bit {
         seven => 7,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn flag_checks() {
+        let flags: u8 = 0;
+
+        assert!(!Flag::Zero.test(flags));
+        assert!(!Flag::Carry.test(flags));
+        assert!(!Flag::Subtract.test(flags));
+        assert!(!Flag::HalfCarry.test(flags));
+
+        let flags = Flag::Zero.mask() | Flag::Carry.mask();
+        assert!(Flag::Zero.test(flags));
+        assert!(Flag::Carry.test(flags));
+        assert!(!Flag::HalfCarry.test(flags));
+        assert!(!Flag::Subtract.test(flags));
+    }
+}

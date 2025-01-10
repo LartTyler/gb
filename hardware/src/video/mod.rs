@@ -18,7 +18,8 @@ pub struct Video {
 }
 
 impl Video {
-    const LINE_COUNT: u8 = 144;
+    const TRUE_LINE_COUNT: u8 = 144;
+    const VIRTUAL_LINE_COUNT: u8 = 154;
 
     pub fn new(device_mode: DeviceMode) -> Self {
         let mode = Mode::OamScan;
@@ -68,7 +69,7 @@ impl Video {
             if matches!(self.mode, Mode::HorizontalBlank | Mode::VerticalBlank) {
                 self.current_line += 1;
 
-                if self.current_line > Self::LINE_COUNT {
+                if self.current_line >= Self::VIRTUAL_LINE_COUNT {
                     self.current_line = 0;
                 }
             }
@@ -132,7 +133,7 @@ pub enum Mode {
 
 impl Mode {
     const OAM_DOTS: u16 = 80;
-    const VBLANK_DOTS: u16 = 4560;
+    const VBLANK_DOTS: u16 = 456;
     const HBLANK_MAX_DOTS: u16 = 204;
     const DRAW_MIN_DOTS: u16 = 172;
 
@@ -140,8 +141,9 @@ impl Mode {
         match self {
             Self::OamScan => Self::Draw,
             Self::Draw => Self::HorizontalBlank,
-            Self::HorizontalBlank if current_line < Video::LINE_COUNT => Self::OamScan,
+            Self::HorizontalBlank if current_line < Video::TRUE_LINE_COUNT => Self::OamScan,
             Self::HorizontalBlank => Self::VerticalBlank,
+            Self::VerticalBlank if current_line >= Video::TRUE_LINE_COUNT => Self::VerticalBlank,
             Self::VerticalBlank => Self::OamScan,
         }
     }

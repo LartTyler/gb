@@ -76,3 +76,23 @@ impl Condition {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn conditions() {
+        let flags: u8 = 0;
+        assert!(!Condition::Zero.test(flags));
+        assert!(Condition::NotZero.test(flags));
+        assert!(!Condition::Carry.test(flags));
+        assert!(Condition::NotCarry.test(flags));
+
+        let flags = crate::Flag::Carry.mask();
+        assert!(!Condition::Zero.test(flags));
+        assert!(Condition::NotZero.test(flags));
+        assert!(Condition::Carry.test(flags));
+        assert!(!Condition::NotCarry.test(flags));
+    }
+}

@@ -34,7 +34,7 @@ impl LoadValue for Target {
 impl Execute for JumpRelative {
     fn execute(&self, device: &mut Device) -> u8 {
         if let Some(cond) = self.condition {
-            if cond.test(device.cpu.flags) {
+            if !cond.test(device.cpu.flags) {
                 return self.cycles().min();
             }
         }
