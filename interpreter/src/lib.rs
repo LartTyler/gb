@@ -28,18 +28,13 @@ impl Interpreter {
             }
         }
 
-        let opcode = device.read_byte(device.cpu.program_counter);
+        let base_pc = device.cpu.program_counter;
+        let opcode = device.read_byte(base_pc);
         let instr = parse(opcode).unwrap_or_else(|| {
             panic!(
                 "Unimplemented opcode {opcode:#04X} at ${:04X}",
                 device.cpu.program_counter
             )
-        });
-
-        #[cfg(feature = "inspect")]
-        self.inspector.send(inspect::Message::Instruction {
-            pc: device.cpu.program_counter,
-            instruction: instr,
         });
 
         device.cpu.program_counter += 1;
@@ -54,7 +49,17 @@ impl Interpreter {
             instr
         };
 
-        let stored_pc = device.cpu.program_counter;
+        #[cfg(feature = "inspect")]
+        self.inspector.send(inspect::Message::Instruction {
+            pc: base_pc,
+            instruction: instr,
+        });
+
+        // We store the mid-process value of PC before executing the instruction so we can detect
+        // changes to the PC by an instruction. Some instructions (such as jumps or calls) can
+        // modify PC, and if they do, we don't want to change PC again after they're done
+        // executing.
+        let pre_exec_pc = device.cpu.program_counter;
 
         let cycles = instr.execute(device);
         let cycle_counter = &mut device.cpu.cycle_counter;
@@ -62,11 +67,10 @@ impl Interpreter {
 
         let pc = &mut device.cpu.program_counter;
 
-        // Some instructions will change the program counter during execution. To ensure we don't
-        // end up pointing to the wrong address after an instruction, we need to first check that
-        // the PC value we stored before calling `execute()` matches the current value of PC.
-        if stored_pc == *pc {
-            *pc = pc.wrapping_add((instr.bytes() - 1) as u16);
+        // As long as PC didn't change during instruction execution, we're safe to move to the
+        // next instruction.
+        if pre_exec_pc == *pc {
+            *pc = base_pc.wrapping_add(instr.bytes() as u16);
         }
 
         device.process(cycles);

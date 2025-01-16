@@ -18,8 +18,11 @@ pub struct Video {
 }
 
 impl Video {
-    const TRUE_LINE_COUNT: u8 = 144;
-    const VIRTUAL_LINE_COUNT: u8 = 154;
+    // The LCD has 144 drawable lines, after which the hardware switches to VBLANK and "draws" an
+    // additional 10 lines. This is, technically, just the time it takes for the display to reset,
+    // but the LY register represents this as ten more lines.
+    const LINE_COUNT: u8 = 144;
+    const VIRTUAL_LINE_COUNT: u8 = Self::LINE_COUNT + 10;
 
     pub fn new(device_mode: DeviceMode) -> Self {
         let mode = Mode::OamScan;
@@ -141,9 +144,9 @@ impl Mode {
         match self {
             Self::OamScan => Self::Draw,
             Self::Draw => Self::HorizontalBlank,
-            Self::HorizontalBlank if current_line < Video::TRUE_LINE_COUNT => Self::OamScan,
+            Self::HorizontalBlank if current_line < Video::LINE_COUNT => Self::OamScan,
             Self::HorizontalBlank => Self::VerticalBlank,
-            Self::VerticalBlank if current_line >= Video::TRUE_LINE_COUNT => Self::VerticalBlank,
+            Self::VerticalBlank if current_line >= Video::LINE_COUNT => Self::VerticalBlank,
             Self::VerticalBlank => Self::OamScan,
         }
     }

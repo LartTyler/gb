@@ -97,7 +97,7 @@ impl Settable for Pair {
     type Value = u16;
 
     fn set(&self, cpu: &mut Cpu, value: Self::Value) {
-        let [high, low] = word_to_bytes(value);
+        let [low, high] = word_to_bytes(value);
         let [high_reg, low_reg] = self.as_registers();
 
         cpu.set(high_reg, high);
